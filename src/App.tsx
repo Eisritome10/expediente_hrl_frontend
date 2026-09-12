@@ -6,6 +6,7 @@ import { AdminLayout } from '@/layouts/AdminLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { ResearchersListPage } from '@/pages/researchers/ResearchersListPage'
+import { InstitutionsListPage } from '@/pages/institutions/InstitutionsListPage'
 
 export function App() {
   return (
@@ -25,6 +26,7 @@ export function App() {
           >
             <Route path="/" element={<DashboardPage />} />
             <Route path="/investigadores" element={<ResearchersListPage />} />
+            <Route path="/instituciones" element={<InstitutionsListPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

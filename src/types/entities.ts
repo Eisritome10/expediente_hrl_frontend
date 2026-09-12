@@ -26,3 +26,10 @@ export interface Institution {
   createdAt: string
   updatedAt: string
 }
+
+export interface CreateInstitutionInput {
+  name: string
+  abbreviation?: string
+}
+
+export type UpdateInstitutionInput = Partial<CreateInstitutionInput>
