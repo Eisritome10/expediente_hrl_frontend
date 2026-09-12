@@ -33,3 +33,44 @@ export interface CreateInstitutionInput {
 }
 
 export type UpdateInstitutionInput = Partial<CreateInstitutionInput>
+
+export interface Faculty {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateFacultyInput {
+  name: string
+}
+
+export type UpdateFacultyInput = Partial<CreateFacultyInput>
+
+export interface Destination {
+  id: string
+  description: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateDestinationInput {
+  description: string
+}
+
+export type UpdateDestinationInput = Partial<CreateDestinationInput>
+
+export interface Modality {
+  id: string
+  name: string
+  fee: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateModalityInput {
+  name: string
+  fee: number
+}
+
+export type UpdateModalityInput = Partial<CreateModalityInput>

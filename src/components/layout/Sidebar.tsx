@@ -31,9 +31,9 @@ const sections: NavSection[] = [
     items: [
       { label: 'Investigadores', to: '/investigadores', icon: UsersIcon },
       { label: 'Instituciones', to: '/instituciones', icon: BuildingsIcon },
-      { label: 'Facultades', icon: GraduationCapIcon },
-      { label: 'Destinos', icon: PaperPlaneTiltIcon },
-      { label: 'Modalidades', icon: FlaskIcon },
+      { label: 'Facultades', to: '/facultades', icon: GraduationCapIcon },
+      { label: 'Destinos', to: '/destinos', icon: PaperPlaneTiltIcon },
+      { label: 'Modalidades', to: '/modalidades', icon: FlaskIcon },
       { label: 'Usuarios', icon: UserGearIcon },
     ],
   },
