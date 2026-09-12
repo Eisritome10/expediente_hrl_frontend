@@ -13,6 +13,7 @@ export interface ApiErrorBody {
   message: string | string[]
   statusCode: number
   error?: string
+  errorCode?: string
 }
 
 export class ApiError extends Error {

@@ -29,7 +29,7 @@ const sections: NavSection[] = [
   {
     title: 'Archivos y Catálogos',
     items: [
-      { label: 'Investigadores', icon: UsersIcon },
+      { label: 'Investigadores', to: '/investigadores', icon: UsersIcon },
       { label: 'Instituciones', icon: BuildingsIcon },
       { label: 'Facultades', icon: GraduationCapIcon },
       { label: 'Destinos', icon: PaperPlaneTiltIcon },

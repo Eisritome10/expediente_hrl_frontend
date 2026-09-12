@@ -5,6 +5,7 @@ import { AuthLayout } from '@/layouts/AuthLayout'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
+import { ResearchersListPage } from '@/pages/researchers/ResearchersListPage'
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
             }
           >
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/investigadores" element={<ResearchersListPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

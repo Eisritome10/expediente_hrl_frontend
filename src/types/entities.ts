@@ -9,6 +9,16 @@ export interface Researcher {
   updatedAt: string
 }
 
+export interface CreateResearcherInput {
+  dni: string
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+}
+
+export type UpdateResearcherInput = Partial<Omit<CreateResearcherInput, 'dni'>>
+
 export interface Institution {
   id: string
   name: string
