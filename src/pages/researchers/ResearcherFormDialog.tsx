@@ -38,6 +38,8 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
     formState: { errors, isSubmitting },
   } = useForm<ResearcherFormValues>({
     resolver: zodResolver(researcherFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       dni: researcher?.dni ?? '',
       firstName: researcher?.firstName ?? '',
@@ -70,25 +72,38 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <FormField label="DNI" htmlFor="dni" error={errors.dni?.message}>
-        <Input id="dni" maxLength={8} disabled={isEditing} placeholder="12345678" {...register('dni')} />
+      <FormField label="DNI" htmlFor="dni" error={errors.dni?.message} required>
+        <Input
+          id="dni"
+          maxLength={8}
+          disabled={isEditing}
+          placeholder="12345678"
+          error={errors.dni?.message}
+          {...register('dni')}
+        />
       </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="Nombres" htmlFor="firstName" error={errors.firstName?.message}>
-          <Input id="firstName" autoFocus {...register('firstName')} />
+        <FormField label="Nombres" htmlFor="firstName" error={errors.firstName?.message} required>
+          <Input id="firstName" autoFocus error={errors.firstName?.message} {...register('firstName')} />
         </FormField>
-        <FormField label="Apellidos" htmlFor="lastName" error={errors.lastName?.message}>
-          <Input id="lastName" {...register('lastName')} />
+        <FormField label="Apellidos" htmlFor="lastName" error={errors.lastName?.message} required>
+          <Input id="lastName" error={errors.lastName?.message} {...register('lastName')} />
         </FormField>
       </div>
 
       <FormField label="Correo electrónico" htmlFor="email" error={errors.email?.message}>
-        <Input id="email" type="email" placeholder="opcional" {...register('email')} />
+        <Input id="email" type="email" placeholder="opcional" error={errors.email?.message} {...register('email')} />
       </FormField>
 
       <FormField label="Teléfono" htmlFor="phone" error={errors.phone?.message}>
-        <Input id="phone" placeholder="opcional" {...register('phone')} />
+        <Input
+          id="phone"
+          maxLength={9}
+          placeholder="9 dígitos (opcional)"
+          error={errors.phone?.message}
+          {...register('phone')}
+        />
       </FormField>
 
       {formError && (

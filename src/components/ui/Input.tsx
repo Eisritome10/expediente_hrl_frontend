@@ -28,17 +28,25 @@ export function FormField({
   label,
   htmlFor,
   error,
+  required,
   children,
 }: {
   label: string
   htmlFor: string
   error?: string
+  required?: boolean
   children: ReactNode
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={htmlFor} className="text-sm font-medium text-text">
         {label}
+        {required && (
+          <span className="text-red-600" aria-hidden>
+            {' '}
+            *
+          </span>
+        )}
       </label>
       {children}
       {error && <p className="text-sm text-red-600">{error}</p>}

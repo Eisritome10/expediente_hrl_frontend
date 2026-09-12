@@ -30,7 +30,7 @@ export function Dialog({ open, onClose, title, children, footer, className }: Di
         if (event.target === ref.current) onClose()
       }}
       className={cn(
-        'w-full max-w-md rounded-xl border border-border bg-white p-0 shadow-xl backdrop:bg-black/40',
+        'm-auto w-full max-w-md rounded-xl border border-border bg-white p-0 shadow-xl backdrop:bg-black/40',
         className,
       )}
     >

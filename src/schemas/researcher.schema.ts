@@ -11,7 +11,9 @@ export const researcherFormSchema = z.object({
     .min(1, 'Ingresa los apellidos.')
     .max(100, 'Máximo 100 caracteres.'),
   email: z.union([z.literal(''), z.string().email('Ingresa un correo válido.')]).optional(),
-  phone: z.string().optional(),
+  phone: z
+    .union([z.literal(''), z.string().regex(/^\d{9}$/, 'El teléfono debe tener exactamente 9 dígitos.')])
+    .optional(),
 })
 
 export type ResearcherFormValues = z.infer<typeof researcherFormSchema>

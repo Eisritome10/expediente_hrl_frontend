@@ -50,12 +50,24 @@ export function LoginPage() {
       <p className="mb-5 text-sm text-text-muted">Ingresa tus credenciales para continuar.</p>
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FormField label="Usuario" htmlFor="username" error={errors.username?.message}>
-          <Input id="username" autoComplete="username" autoFocus {...register('username')} />
+        <FormField label="Usuario" htmlFor="username" error={errors.username?.message} required>
+          <Input
+            id="username"
+            autoComplete="username"
+            autoFocus
+            error={errors.username?.message}
+            {...register('username')}
+          />
         </FormField>
 
-        <FormField label="Contraseña" htmlFor="password" error={errors.password?.message}>
-          <Input id="password" type="password" autoComplete="current-password" {...register('password')} />
+        <FormField label="Contraseña" htmlFor="password" error={errors.password?.message} required>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            error={errors.password?.message}
+            {...register('password')}
+          />
         </FormField>
 
         {formError && (
