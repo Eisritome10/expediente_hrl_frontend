@@ -17,7 +17,7 @@ export function Topbar() {
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-text hover:bg-surface-muted"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-text transition-colors hover:bg-surface-muted"
         >
           <UserCircleIcon size={22} />
           <span className="font-medium">{user?.username}</span>
@@ -29,7 +29,7 @@ export function Topbar() {
             <button
               type="button"
               onClick={logout}
-              className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-text hover:bg-surface-muted"
+              className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-text transition-colors hover:bg-surface-muted"
             >
               <SignOutIcon size={16} />
               Cerrar sesión

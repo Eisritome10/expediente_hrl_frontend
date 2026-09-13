@@ -8,6 +8,7 @@ export const institutionFormSchema = z.object({
   abbreviation: z
     .union([z.literal(''), z.string().min(1).max(30, 'Máximo 30 caracteres.')])
     .optional(),
+  esUniversidad: z.boolean(),
 })
 
 export type InstitutionFormValues = z.infer<typeof institutionFormSchema>

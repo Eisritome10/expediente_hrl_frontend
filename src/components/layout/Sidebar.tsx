@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   SquaresFourIcon,
+  ClipboardTextIcon,
   UsersIcon,
   BuildingsIcon,
   GraduationCapIcon,
@@ -29,6 +30,7 @@ const sections: NavSection[] = [
   {
     title: 'Archivos y Catálogos',
     items: [
+      { label: 'Protocolos', to: '/protocolos', icon: ClipboardTextIcon },
       { label: 'Investigadores', to: '/investigadores', icon: UsersIcon },
       { label: 'Instituciones', to: '/instituciones', icon: BuildingsIcon },
       { label: 'Facultades', to: '/facultades', icon: GraduationCapIcon },

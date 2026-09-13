@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 
 export function Table({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm shadow-black/[0.03]">
       <table className="w-full min-w-full text-left text-sm">{children}</table>
     </div>
   )
@@ -26,8 +26,20 @@ export function TableBody({ children }: { children: ReactNode }) {
   return <tbody className="divide-y divide-border">{children}</tbody>
 }
 
-export function TableRow({ children, className }: { children: ReactNode; className?: string }) {
-  return <tr className={cn('hover:bg-surface-muted/60', className)}>{children}</tr>
+export function TableRow({
+  children,
+  className,
+  onClick,
+}: {
+  children: ReactNode
+  className?: string
+  onClick?: () => void
+}) {
+  return (
+    <tr className={cn('transition-colors hover:bg-surface-muted/60', className)} onClick={onClick}>
+      {children}
+    </tr>
+  )
 }
 
 export function TableTd({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {

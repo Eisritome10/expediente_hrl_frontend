@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { PencilSimpleIcon, PlusIcon, TrashIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { IconButton } from '@/components/ui/IconButton'
 import { Pagination } from '@/components/ui/Pagination'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { Table, TableBody, TableEmptyState, TableHead, TableRow, TableSkeletonRows, TableTd, TableTh } from '@/components/ui/Table'
@@ -107,22 +108,16 @@ export function DestinationsListPage() {
                     <TableTd>{destination.description}</TableTd>
                     <TableTd>
                       <div className="flex justify-end gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openEditDialog(destination)}
-                          aria-label={`Editar ${destination.description}`}
-                          className="rounded-md p-1.5 text-text-muted hover:bg-surface-muted hover:text-text"
-                        >
+                        <IconButton onClick={() => openEditDialog(destination)} aria-label={`Editar ${destination.description}`}>
                           <PencilSimpleIcon size={16} />
-                        </button>
-                        <button
-                          type="button"
+                        </IconButton>
+                        <IconButton
+                          tone="danger"
                           onClick={() => setDeletingDestination(destination)}
                           aria-label={`Eliminar ${destination.description}`}
-                          className="rounded-md p-1.5 text-text-muted hover:bg-red-50 hover:text-red-600"
                         >
                           <TrashIcon size={16} />
-                        </button>
+                        </IconButton>
                       </div>
                     </TableTd>
                   </TableRow>

@@ -5,6 +5,7 @@ import { WarningCircleIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input, FormField } from '@/components/ui/Input'
+import { Switch } from '@/components/ui/Switch'
 import { useCreateInstitution, useUpdateInstitution } from '@/hooks/useInstitutions'
 import { institutionFormSchema, type InstitutionFormValues } from '@/schemas/institution.schema'
 import { getInstitutionErrorMessage } from '@/pages/institutions/institution-error-messages'
@@ -35,6 +36,8 @@ function InstitutionFormFields({ institution, onClose }: { institution: Institut
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<InstitutionFormValues>({
     resolver: zodResolver(institutionFormSchema),
@@ -43,14 +46,18 @@ function InstitutionFormFields({ institution, onClose }: { institution: Institut
     defaultValues: {
       name: institution?.name ?? '',
       abbreviation: institution?.abbreviation ?? '',
+      esUniversidad: institution?.esUniversidad ?? false,
     },
   })
+
+  const esUniversidad = watch('esUniversidad')
 
   const onSubmit = async (values: InstitutionFormValues) => {
     setFormError(null)
     const payload = {
       name: values.name,
       abbreviation: values.abbreviation || undefined,
+      esUniversidad: values.esUniversidad,
     }
 
     try {
@@ -80,6 +87,13 @@ function InstitutionFormFields({ institution, onClose }: { institution: Institut
       <FormField label="Abreviatura" htmlFor="abbreviation" error={errors.abbreviation?.message}>
         <Input id="abbreviation" placeholder="opcional" error={errors.abbreviation?.message} {...register('abbreviation')} />
       </FormField>
+
+      <Switch
+        checked={esUniversidad}
+        onChange={(checked) => setValue('esUniversidad', checked)}
+        label="Es universidad"
+        description="Habilita asociar facultades a esta institución en los protocolos."
+      />
 
       {formError && (
         <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">

@@ -10,6 +10,7 @@ export function ConfirmDialog({
   description,
   confirmLabel = 'Eliminar',
   loading = false,
+  tone = 'danger',
 }: {
   open: boolean
   onClose: () => void
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   description: ReactNode
   confirmLabel?: string
   loading?: boolean
+  tone?: 'danger' | 'brand'
 }) {
   return (
     <Dialog
@@ -34,7 +36,7 @@ export function ConfirmDialog({
             type="button"
             loading={loading}
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 disabled:bg-red-600/60"
+            className={tone === 'danger' ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-600/60' : undefined}
           >
             {confirmLabel}
           </Button>

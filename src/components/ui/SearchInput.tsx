@@ -28,7 +28,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
           type="button"
           onClick={onClear}
           aria-label="Limpiar búsqueda"
-          className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-0.5 text-text-muted hover:bg-surface-muted hover:text-text"
+          className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-0.5 text-text-muted transition-colors hover:bg-surface-muted hover:text-text"
         >
           <XIcon size={14} />
         </button>

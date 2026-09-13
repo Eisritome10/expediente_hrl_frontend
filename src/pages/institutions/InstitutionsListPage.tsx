@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { PencilSimpleIcon, PlusIcon, TrashIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { IconButton } from '@/components/ui/IconButton'
 import { Pagination } from '@/components/ui/Pagination'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { Table, TableBody, TableEmptyState, TableHead, TableRow, TableSkeletonRows, TableTd, TableTh } from '@/components/ui/Table'
@@ -96,43 +98,45 @@ export function InstitutionsListPage() {
             <TableHead>
               <TableTh>Nombre</TableTh>
               <TableTh>Abreviatura</TableTh>
+              <TableTh>Tipo</TableTh>
               <TableTh className="text-right">Acciones</TableTh>
             </TableHead>
             <TableBody>
               {isPending ? (
-                <TableSkeletonRows rows={PAGE_SIZE} columns={3} />
+                <TableSkeletonRows rows={PAGE_SIZE} columns={4} />
               ) : visibleInstitutions.length > 0 ? (
                 visibleInstitutions.map((institution) => (
                   <TableRow key={institution.id}>
                     <TableTd>{institution.name}</TableTd>
                     <TableTd className="text-text-muted">{institution.abbreviation ?? '-'}</TableTd>
                     <TableTd>
+                      {institution.esUniversidad ? (
+                        <Badge tone="brand">Universidad</Badge>
+                      ) : (
+                        <Badge tone="neutral">Institución</Badge>
+                      )}
+                    </TableTd>
+                    <TableTd>
                       <div className="flex justify-end gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openEditDialog(institution)}
-                          aria-label={`Editar ${institution.name}`}
-                          className="rounded-md p-1.5 text-text-muted hover:bg-surface-muted hover:text-text"
-                        >
+                        <IconButton onClick={() => openEditDialog(institution)} aria-label={`Editar ${institution.name}`}>
                           <PencilSimpleIcon size={16} />
-                        </button>
-                        <button
-                          type="button"
+                        </IconButton>
+                        <IconButton
+                          tone="danger"
                           onClick={() => setDeletingInstitution(institution)}
                           aria-label={`Eliminar ${institution.name}`}
-                          className="rounded-md p-1.5 text-text-muted hover:bg-red-50 hover:text-red-600"
                         >
                           <TrashIcon size={16} />
-                        </button>
+                        </IconButton>
                       </div>
                     </TableTd>
                   </TableRow>
                 ))
               ) : isSearching ? (
-                <TableEmptyState colSpan={3} message="No se encontraron instituciones para esa búsqueda." />
+                <TableEmptyState colSpan={4} message="No se encontraron instituciones para esa búsqueda." />
               ) : (
                 <TableEmptyState
-                  colSpan={3}
+                  colSpan={4}
                   message="Aún no hay instituciones registradas."
                   action={
                     <Button variant="secondary" onClick={openCreateDialog}>

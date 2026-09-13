@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import {
   createResearcher,
   deleteResearcher,
@@ -6,6 +7,7 @@ import {
   listResearchers,
   updateResearcher,
 } from '@/api/researchers'
+import { getResearcherErrorMessage } from '@/pages/researchers/researcher-error-messages'
 import type { CreateResearcherInput, UpdateResearcherInput } from '@/types/entities'
 
 export function useResearchersList(params: { page: number; limit: number }) {
@@ -28,7 +30,10 @@ export function useCreateResearcher() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateResearcherInput) => createResearcher(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['researchers'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      toast.success('Investigador creado')
+    },
   })
 }
 
@@ -37,7 +42,10 @@ export function useUpdateResearcher() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateResearcherInput }) =>
       updateResearcher(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['researchers'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      toast.success('Investigador actualizado')
+    },
   })
 }
 
@@ -45,6 +53,10 @@ export function useDeleteResearcher() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteResearcher(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['researchers'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      toast.success('Investigador eliminado')
+    },
+    onError: (error) => toast.error(getResearcherErrorMessage(error)),
   })
 }
