@@ -17,6 +17,7 @@ export const OBSERVATION_TYPE_LABELS: Record<ObservationType, string> = {
   ADMINISTRATIVE: 'Administrativa / documentos',
   METHODOLOGICAL: 'Metodológica',
   LEGAL_INSTITUTIONAL: 'Legal / institucional',
+  OTHER: 'Otro',
 }
 
 /** Orden en que se ofrecen los tipos al registrar una observación. */

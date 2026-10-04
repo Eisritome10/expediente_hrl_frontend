@@ -174,6 +174,7 @@ export type ObservationType =
   | 'ADMINISTRATIVE'
   | 'METHODOLOGICAL'
   | 'LEGAL_INSTITUTIONAL'
+  | 'OTHER'
 
 /** Una observación de un dictamen. `type` es null en dictámenes anteriores a la clasificación por tipo. */
 export interface ProtocolReviewObservation {
@@ -223,6 +224,13 @@ export interface CreateProtocolReviewInput {
   catalogadoRiesgo?: RiskLevel
 }
 
+/** Comentario con el que se corrigió un protocolo observado (historial). */
+export interface ProtocolCorrection {
+  id: string
+  comment: string
+  createdAt: string
+}
+
 export interface Protocol {
   id: string
   status: ProtocolStatus
@@ -265,6 +273,7 @@ export interface Protocol {
   consentimientoInformado: boolean
   departamentoDirigidoPermiso: string | null
   reviews?: ProtocolReview[]
+  corrections: ProtocolCorrection[]
   createdAt: string
   updatedAt: string
 }
@@ -306,7 +315,10 @@ export interface CreateProtocolInput {
  * Corrección parcial de un protocolo observado. `null` en el pago, los comprobantes o el departamento los
  * limpia en el backend; `undefined` los deja como estaban.
  */
-export type UpdateProtocolInput = Partial<
+export type UpdateProtocolInput = {
+  /** Comentario de la corrección (historial); opcional. */
+  correctionComment?: string
+} & Partial<
   Omit<
     CreateProtocolInput,
     'protocoloOriginalId' | 'pagoRevision' | 'tipoComprobante' | 'comprobanteRevision' | 'departamentoDirigidoPermiso'
@@ -358,6 +370,7 @@ export interface ResearcherProtocolDetail {
   esEnmienda: boolean
   protocoloOriginal: { id: string; nroExpediente: string } | null
   reviews: ResearcherProtocolReview[]
+  corrections: ProtocolCorrection[]
   createdAt: string
   updatedAt: string
 }

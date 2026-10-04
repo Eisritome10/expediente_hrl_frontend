@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { CheckCircleIcon, PlusIcon, TrashIcon, XCircleIcon } from '@phosphor-icons/react'
+import { PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { FormAlert } from '@/components/ui/FormAlert'
@@ -29,7 +29,8 @@ interface ReviewFormValues {
   catalogadoRiesgo: RiskLevel | ''
 }
 
-const EMPTY_ROW: ObservationRow = { type: '', text: '' }
+// Al observar siempre hay una observación lista; el tipo por defecto es "Otro" y se puede cambiar.
+const EMPTY_ROW: ObservationRow = { type: 'OTHER', text: '' }
 
 const SUBMIT_LABEL: Record<ReviewOutcome, string> = {
   OBSERVED: 'Registrar observaciones',
@@ -72,26 +73,13 @@ function ReviewForm({
   const [formError, setFormError] = useState<string | null>(null)
   const isCiei = committee === 'CIEI'
 
-  // La documentación ética se registró al crear el protocolo; el CIEI solo puede finalizar si está completa.
-  const documentation = [
-    {
-      label: 'Constancia ética',
-      ok: protocol.tieneConstanciaEtica,
-      detail: protocol.tieneConstanciaEtica ? protocol.idConstanciaEtica : null,
-    },
-    { label: 'Consentimiento informado', ok: protocol.consentimientoInformado, detail: null },
-    ...(protocol.requiereRevisionHc
-      ? [{ label: 'Certificado de buenas prácticas', ok: protocol.certificadoBuenasPracticas, detail: null }]
-      : []),
-  ]
-  const documentationComplete = documentation.every((item) => item.ok)
+  // El certificado de buenas prácticas se registró al crear el protocolo (solo aplica con revisión de HC).
+  // El CIEI lo evalúa, pero su falta no impide finalizar.
+  const certificateMissing = protocol.requiereRevisionHc && !protocol.certificadoBuenasPracticas
 
-  // El CIEI no puede finalizar con una observación pendiente ni con documentación incompleta.
-  const canFinalize = isCiei && protocol.status !== 'CIEI_OBSERVED' && documentationComplete
-  const finalizeBlockedReason =
-    protocol.status === 'CIEI_OBSERVED'
-      ? 'Disponible cuando el CIEI no tenga observaciones pendientes de subsanar.'
-      : 'Falta documentación ética registrada. Observa el protocolo para que se subsane.'
+  // El CIEI no puede finalizar con una observación pendiente de corregir.
+  const canFinalize = isCiei && protocol.status !== 'CIEI_OBSERVED'
+  const finalizeBlockedReason = 'Disponible cuando el CIEI no tenga observaciones pendientes de corregir.'
 
   const {
     register,
@@ -107,19 +95,24 @@ function ReviewForm({
 
   const outcome = watch('outcome')
   const isObserving = outcome === 'OBSERVED'
+
+  // Al elegir "Observar" siempre hay al menos una observación lista para escribir.
+  useEffect(() => {
+    if (isObserving && fields.length === 0) append(EMPTY_ROW)
+  }, [isObserving, fields.length, append])
   const isFinalizing = outcome === 'FINALIZED'
 
   const outcomeOptions: RadioCardOption<ReviewOutcome>[] = [
     {
       value: 'OBSERVED',
       label: 'Observar',
-      description: 'Devuelve el expediente al investigador con observaciones por subsanar.',
+      description: 'Devuelve el expediente al investigador con observaciones por corregir.',
     },
     isCiei
       ? {
           value: 'FINALIZED',
           label: 'Finalizar con aprobación ética',
-          description: 'Cierra el proceso. Requiere el nivel de riesgo y la documentación ética registrada.',
+          description: 'Cierra el proceso. Solo requiere el nivel de riesgo.',
           disabled: !canFinalize,
           disabledReason: finalizeBlockedReason,
         }
@@ -134,20 +127,18 @@ function ReviewForm({
     setFormError(null)
     let hasErrors = false
 
-    // Las filas totalmente vacías se descartan; una fila a medias (tipo sin texto o texto sin tipo) es un error.
+    // Las filas sin texto se descartan (salvo que al observar no quede ninguna completa); una fila con texto pero sin
+    // tipo es un error.
     const completed: { type: ObservationType; text: string }[] = []
     values.observations.forEach((row, index) => {
       const text = row.text.trim()
-      if (!row.type && !text) return
+      if (!text) return
       if (!row.type) {
         setError(`observations.${index}.type`, { type: 'validate', message: 'Selecciona el tipo de observación.' })
         hasErrors = true
+        return
       }
-      if (!text) {
-        setError(`observations.${index}.text`, { type: 'validate', message: 'Describe la observación.' })
-        hasErrors = true
-      }
-      if (row.type && text) completed.push({ type: row.type, text })
+      completed.push({ type: row.type, text })
     })
 
     if (values.outcome === 'OBSERVED' && completed.length === 0 && !hasErrors) {
@@ -155,8 +146,7 @@ function ReviewForm({
         setFormError('Agrega al menos una observación para devolver el protocolo al investigador.')
         return
       }
-      setError('observations.0.type', { type: 'validate', message: 'Selecciona el tipo de observación.' })
-      setError('observations.0.text', { type: 'validate', message: 'Describe qué debe subsanar el investigador.' })
+      setError('observations.0.text', { type: 'validate', message: 'Describe qué debe corregir el investigador.' })
       hasErrors = true
     }
 
@@ -280,7 +270,12 @@ function ReviewForm({
             </Select>
           </FormField>
 
-          <DocumentationChecklist items={documentation} />
+          {certificateMissing && (
+            <p className="text-sm text-text-muted">
+              El protocolo requiere revisión de historia clínica y no tiene certificado de buenas prácticas registrado. Esto no
+              impide finalizar: puedes finalizar igual o, si prefieres, observarlo para que se complete.
+            </p>
+          )}
         </fieldset>
       )}
 
@@ -295,29 +290,5 @@ function ReviewForm({
         </Button>
       </div>
     </form>
-  )
-}
-
-function DocumentationChecklist({ items }: { items: { label: string; ok: boolean; detail: string | null }[] }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm font-medium text-text">Documentación registrada al crear el protocolo</p>
-      <ul className="flex flex-col gap-1.5">
-        {items.map((item) => (
-          <li key={item.label} className="flex items-center gap-2 text-sm text-text">
-            {item.ok ? (
-              <CheckCircleIcon size={18} weight="fill" className="shrink-0 text-emerald-600" aria-hidden />
-            ) : (
-              <XCircleIcon size={18} weight="fill" className="shrink-0 text-red-600" aria-hidden />
-            )}
-            <span>
-              {item.label}
-              {item.detail && <span className="text-text-muted">{` (${item.detail})`}</span>}
-              <span className="sr-only">{item.ok ? ': registrada' : ': no registrada'}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
   )
 }

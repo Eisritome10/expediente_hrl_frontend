@@ -16,9 +16,8 @@ import { ExpedienteStep } from '@/pages/protocols/steps/ExpedienteStep'
 import { EquipoStep } from '@/pages/protocols/steps/EquipoStep'
 import { InstitucionPagoStep } from '@/pages/protocols/steps/InstitucionPagoStep'
 import { HistoriaClinicaStep } from '@/pages/protocols/steps/HistoriaClinicaStep'
-import { DocumentacionEticaStep } from '@/pages/protocols/steps/DocumentacionEticaStep'
 import { ResumenStep } from '@/pages/protocols/steps/ResumenStep'
-import { protocolFormDefaultValues, protocolFormSchema, protocolStepFields, type ProtocolFormValues } from '@/schemas/protocol.schema'
+import { HC_REVIEW_FEE, protocolFormDefaultValues, protocolFormSchema, protocolStepFields, type ProtocolFormValues } from '@/schemas/protocol.schema'
 import type { CreateProtocolInput } from '@/types/entities'
 import { FormAlert } from '@/components/ui/FormAlert'
 
@@ -31,7 +30,6 @@ const STEPS: (StepDefinition & {
   { id: 'equipo', label: 'Equipo y líneas', key: 'equipo', render: () => <EquipoStep /> },
   { id: 'institucionPago', label: 'Institución y pago', key: 'institucionPago', render: () => <InstitucionPagoStep /> },
   { id: 'historiaClinica', label: 'Historia clínica', key: 'historiaClinica', render: () => <HistoriaClinicaStep /> },
-  { id: 'documentacionEtica', label: 'Documentación ética', key: 'documentacionEtica', render: () => <DocumentacionEticaStep /> },
   { id: 'resumen', label: 'Resumen', key: 'resumen', render: (goToStep) => <ResumenStep onEditStep={goToStep} /> },
 ]
 
@@ -68,14 +66,9 @@ function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput 
     comprobanteRevision: exonerado ? undefined : emptyToUndefined(values.comprobanteRevision)?.trim().toUpperCase(),
     protocoloOriginalId: emptyToUndefined(values.protocoloOriginalId),
     requiereRevisionHc: values.requiereRevisionHc,
-    montoHc: values.requiereRevisionHc ? numberOrUndefined(values.montoHc) : undefined,
+    montoHc: values.requiereRevisionHc ? HC_REVIEW_FEE : undefined,
     tipoComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.tipoComprobanteHc) : undefined,
     nroComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.nroComprobanteHc) : undefined,
-    tieneConstanciaEtica: values.tieneConstanciaEtica,
-    idConstanciaEtica: values.tieneConstanciaEtica ? emptyToUndefined(values.idConstanciaEtica) : undefined,
-    fechaConstancia: values.tieneConstanciaEtica ? emptyToUndefined(values.fechaConstancia) : undefined,
-    consentimientoInformado: values.consentimientoInformado,
-    departamentoDirigidoPermiso: emptyToUndefined(values.departamentoDirigidoPermiso),
     certificadoBuenasPracticas: values.requiereRevisionHc ? values.certificadoBuenasPracticas : false,
   }
 }

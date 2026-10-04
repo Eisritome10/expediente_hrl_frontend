@@ -49,7 +49,7 @@ export function ProtocolDetailPage() {
     protocol?.status === 'FINALIZED' ||
     lastCicOutcome === 'APPROVED'
 
-  // La observación que hay que subsanar: el último dictamen OBSERVED del comité en cuyo estado está el protocolo.
+  // La observación que hay que corregir: el último dictamen OBSERVED del comité en cuyo estado está el protocolo.
   const observingCommittee = protocol?.status === 'CIEI_OBSERVED' ? 'CIEI' : 'CIC'
   const pendingObservation =
     reviewsData?.data.find((review) => review.outcome === 'OBSERVED' && review.committee === observingCommittee) ?? null
@@ -125,8 +125,12 @@ export function ProtocolDetailPage() {
                 <Skeleton className="h-4 w-1/3" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
-            ) : reviewsData && reviewsData.data.length > 0 ? (
-              <ProtocolReviewTimeline reviews={reviewsData.data} pendingId={isObserved ? pendingObservation?.id : undefined} />
+            ) : (reviewsData && reviewsData.data.length > 0) || protocol.corrections.length > 0 ? (
+              <ProtocolReviewTimeline
+                reviews={reviewsData?.data ?? []}
+                corrections={protocol.corrections}
+                pendingId={isObserved ? pendingObservation?.id : undefined}
+              />
             ) : (
               <p className="text-sm text-text-muted">Aún no hay dictámenes. El primero lo registra el CIC.</p>
             )}
@@ -144,20 +148,19 @@ export function ProtocolDetailPage() {
           </Card>
 
           <Card className="p-5">
-            <h2 className="mb-1 text-sm font-semibold text-text">Documentación y evaluación ética</h2>
+            <h2 className="mb-1 text-sm font-semibold text-text">Evaluación ética</h2>
             <dl className="divide-y divide-border">
-              <Row
-                label="Constancia ética"
-                value={
-                  protocol.tieneConstanciaEtica
-                    ? [protocol.idConstanciaEtica, protocol.fechaConstancia?.slice(0, 10)].filter(Boolean).join(', ')
-                    : 'No cuenta con constancia'
-                }
-              />
-              <Row label="Consentimiento informado" value={protocol.consentimientoInformado ? 'Sí' : 'No'} />
               {protocol.requiereRevisionHc && (
                 <Row label="Certificado de buenas prácticas" value={protocol.certificadoBuenasPracticas ? 'Sí' : 'No'} />
               )}
+              {/* Datos históricos: ya no se piden al registrar, pero los protocolos antiguos pueden tenerlos. */}
+              {protocol.tieneConstanciaEtica && (
+                <Row
+                  label="Constancia ética"
+                  value={[protocol.idConstanciaEtica, protocol.fechaConstancia?.slice(0, 10)].filter(Boolean).join(', ')}
+                />
+              )}
+              {protocol.consentimientoInformado && <Row label="Consentimiento informado" value="Sí" />}
               {protocol.departamentoDirigidoPermiso && (
                 <Row label="Departamento dirigido" value={protocol.departamentoDirigidoPermiso} />
               )}

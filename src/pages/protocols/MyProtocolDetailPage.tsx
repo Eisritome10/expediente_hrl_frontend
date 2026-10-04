@@ -107,8 +107,12 @@ export function MyProtocolDetailPage() {
 
           <Card className="p-5">
             <h2 className="mb-4 text-sm font-semibold text-text">Historial de dictámenes</h2>
-            {reviews.length > 0 ? (
-              <ProtocolReviewTimeline reviews={reviews} pendingId={isObserved ? pendingObservation?.id : undefined} />
+            {reviews.length > 0 || protocol.corrections.length > 0 ? (
+              <ProtocolReviewTimeline
+                reviews={reviews}
+                corrections={protocol.corrections}
+                pendingId={isObserved ? pendingObservation?.id : undefined}
+              />
             ) : (
               <p className="text-sm text-text-muted">Aún no hay dictámenes. El primero lo registra el CIC.</p>
             )}

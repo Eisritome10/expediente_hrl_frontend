@@ -2,6 +2,9 @@ import { z } from 'zod'
 import { NRO_EXPEDIENTE_PATTERN, comprobanteError } from '@/lib/comprobante'
 import type { Protocol } from '@/types/entities'
 
+/** Monto fijo (S/) de la revisión de historia clínica: no se edita. */
+export const HC_REVIEW_FEE = 50
+
 export function normalizeAlnum(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '')
 }
@@ -51,11 +54,6 @@ export const protocolFormSchema = z
     tipoComprobanteHc: z.string(),
     nroComprobanteHc: z.string(),
 
-    tieneConstanciaEtica: z.boolean(),
-    idConstanciaEtica: z.string(),
-    fechaConstancia: z.string(),
-    consentimientoInformado: z.boolean(),
-    departamentoDirigidoPermiso: z.string().max(200, 'Máximo 200 caracteres.'),
     certificadoBuenasPracticas: z.boolean(),
   })
   .superRefine((values, ctx) => {
@@ -128,15 +126,6 @@ export const protocolFormSchema = z
       }
     }
 
-    if (values.tieneConstanciaEtica) {
-      if (!values.idConstanciaEtica.trim()) {
-        ctx.addIssue({ code: 'custom', path: ['idConstanciaEtica'], message: 'Ingresa el N° o código de la constancia.' })
-      }
-      if (!values.fechaConstancia) {
-        ctx.addIssue({ code: 'custom', path: ['fechaConstancia'], message: 'Ingresa la fecha de la constancia.' })
-      }
-    }
-
     if (values.requiereRevisionHc) {
       if (values.montoHc === undefined || Number.isNaN(values.montoHc) || values.montoHc <= 0) {
         ctx.addIssue({ code: 'custom', path: ['montoHc'], message: 'Ingresa el monto de revisión de HC.' })
@@ -177,15 +166,7 @@ export const protocolStepFields: Record<string, (keyof ProtocolFormValues)[]> = 
     'tipoComprobante',
     'comprobanteRevision',
   ],
-  historiaClinica: ['requiereRevisionHc', 'montoHc', 'tipoComprobanteHc', 'nroComprobanteHc'],
-  documentacionEtica: [
-    'tieneConstanciaEtica',
-    'idConstanciaEtica',
-    'fechaConstancia',
-    'consentimientoInformado',
-    'departamentoDirigidoPermiso',
-    'certificadoBuenasPracticas',
-  ],
+  historiaClinica: ['requiereRevisionHc', 'montoHc', 'tipoComprobanteHc', 'nroComprobanteHc', 'certificadoBuenasPracticas'],
   resumen: [],
 }
 
@@ -217,15 +198,10 @@ export const protocolFormDefaultValues: ProtocolFormValues = {
   comprobanteRevision: '',
 
   requiereRevisionHc: false,
-  montoHc: 50,
+  montoHc: HC_REVIEW_FEE,
   tipoComprobanteHc: '',
   nroComprobanteHc: '',
 
-  tieneConstanciaEtica: false,
-  idConstanciaEtica: '',
-  fechaConstancia: '',
-  consentimientoInformado: false,
-  departamentoDirigidoPermiso: '',
   certificadoBuenasPracticas: false,
 }
 
@@ -264,15 +240,10 @@ export function protocolToAmendmentFormValues(protocol: Protocol): ProtocolFormV
     comprobanteRevision: '',
 
     requiereRevisionHc: protocol.requiereRevisionHc,
-    montoHc: protocol.montoHc ?? 50,
+    montoHc: HC_REVIEW_FEE,
     tipoComprobanteHc: protocol.tipoComprobanteHc ?? '',
     nroComprobanteHc: protocol.nroComprobanteHc ?? '',
 
-    tieneConstanciaEtica: protocol.tieneConstanciaEtica,
-    idConstanciaEtica: protocol.idConstanciaEtica ?? '',
-    fechaConstancia: protocol.fechaConstancia?.slice(0, 10) ?? '',
-    consentimientoInformado: protocol.consentimientoInformado,
-    departamentoDirigidoPermiso: protocol.departamentoDirigidoPermiso ?? '',
     certificadoBuenasPracticas: protocol.certificadoBuenasPracticas,
   }
 }

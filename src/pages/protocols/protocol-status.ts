@@ -16,9 +16,9 @@ export const PROTOCOL_STATUSES = Object.keys(PROTOCOL_STATUS_CONFIG) as Protocol
 /** Qué significa cada estado para quien investiga y qué le toca hacer, en una línea. */
 export const RESEARCHER_STATUS_HINT: Record<ProtocolStatus, string> = {
   CREATED: 'Registrado y en evaluación.',
-  CIC_OBSERVED: 'El CIC dejó observaciones. Acércate a la OADI para subsanarlas.',
+  CIC_OBSERVED: 'El CIC dejó observaciones. Acércate a la OADI para corregirlas.',
   CIC_CORRECTED: 'Observaciones del CIC corregidas, pendiente de nueva revisión.',
-  CIEI_OBSERVED: 'El CIEI dejó observaciones. Acércate a la OADI para subsanarlas.',
+  CIEI_OBSERVED: 'El CIEI dejó observaciones. Acércate a la OADI para corregirlas.',
   CIEI_CORRECTED: 'Observaciones del CIEI corregidas, pendiente de nueva revisión.',
   FINALIZED: 'Proceso concluido.',
 }

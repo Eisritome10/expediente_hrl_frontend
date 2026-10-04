@@ -148,26 +148,11 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
             value={`S/ ${Number(values.montoHc ?? 0).toFixed(2)} (${values.tipoComprobanteHc} ${values.nroComprobanteHc ?? ''})`}
           />
         )}
-      </SummarySection>
-
-      <SummarySection title="Documentación ética" onEdit={() => onEditStep(5)}>
-        <SummaryRow
-          label="Constancia ética"
-          value={
-            values.tieneConstanciaEtica
-              ? `Sí (${values.idConstanciaEtica}, ${values.fechaConstancia})`
-              : 'No cuenta con constancia'
-          }
-        />
-        <SummaryRow label="Consentimiento informado" value={values.consentimientoInformado ? 'Sí' : 'No'} />
-        <SummaryRow label="Departamento dirigido" value={values.departamentoDirigidoPermiso} />
         {values.requiereRevisionHc && (
-          <SummaryRow
-            label="Certificado de buenas prácticas"
-            value={values.certificadoBuenasPracticas ? 'Sí' : 'No'}
-          />
+          <SummaryRow label="Certificado de buenas prácticas" value={values.certificadoBuenasPracticas ? 'Sí' : 'No'} />
         )}
       </SummarySection>
+
     </div>
   )
 }

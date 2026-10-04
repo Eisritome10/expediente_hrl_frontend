@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { FormField } from '@/components/ui/Input'
@@ -17,6 +18,8 @@ export function InstitucionStep() {
   } = useFormContext<ProtocolFormValues>()
 
   const institucionId = useWatch<ProtocolFormValues, 'institucionId'>({ control, name: 'institucionId' })
+  const esInstitucional = useWatch<ProtocolFormValues, 'esInstitucional'>({ control, name: 'esInstitucional' })
+  const modalidadId = useWatch<ProtocolFormValues, 'modalidadId'>({ control, name: 'modalidadId' })
 
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
   const modalities = useModalitiesList({ page: 1, limit: CATALOG_LIMIT })
@@ -37,10 +40,23 @@ export function InstitucionStep() {
     id: faculty.id,
     label: faculty.name,
   }))
-  const modalityOptions: ComboboxOption[] = (modalities.data?.data ?? []).map((modality) => ({
+  // Un trabajo institucional no puede ser extrainstitucional: solo quedan las demás modalidades (pregrado, posgrado).
+  const isExtrainstitucional = (name: string) => name.toLowerCase().replace(/[^a-z]/g, '').includes('extrainstitucional')
+  const availableModalities = (modalities.data?.data ?? []).filter(
+    (modality) => !esInstitucional || !isExtrainstitucional(modality.name),
+  )
+  const modalityOptions: ComboboxOption[] = availableModalities.map((modality) => ({
     id: modality.id,
     label: `${modality.name} · S/ ${modality.fee.toFixed(2)}`,
   }))
+
+  // Si ya había elegido una modalidad extrainstitucional y el trabajo pasa a ser institucional, se vuelve a elegir.
+  const selectedModality = modalities.data?.data.find((modality) => modality.id === modalidadId)
+  useEffect(() => {
+    if (esInstitucional && selectedModality && isExtrainstitucional(selectedModality.name)) {
+      setValue('modalidadId', '', { shouldValidate: true })
+    }
+  }, [esInstitucional, selectedModality, setValue])
 
   return (
     <div className="flex flex-col gap-5">

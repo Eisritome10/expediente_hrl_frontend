@@ -49,7 +49,7 @@ pages/protocols/
   ProtocolWizardPage.tsx     # owns the FormProvider, step index, Stepper, and submit
   ProtocolDetailPage.tsx     # admin detail: pending-observation panel, review history, documents
   MyProtocolsPage.tsx / MyProtocolDetailPage.tsx   # researcher read-only list and thread
-  ProtocolReviewDialog.tsx / ProtocolCorrectDialog.tsx   # dictamen (observations by type) / subsanar
+  ProtocolReviewDialog.tsx / ProtocolCorrectDialog.tsx   # dictamen (observations by type) / corregir
   protocol-error-messages.ts
   steps/
     TipoRegistroStep.tsx     # Nuevo vs Enmienda (search a FINALIZED original, prefill the whole form)
@@ -57,8 +57,7 @@ pages/protocols/
     EquipoStep.tsx           # investigador principal, coinvestigadores, asesores, líneas de investigación
     InstitucionPagoStep.tsx  # "Institución y pago": InstitucionStep (institución, facultad condicional, modalidad) + PagoStep
     PagoStep.tsx             # "¿Es convenio?": si sí se elige el convenio; si no, boleta/factura del pago con monto fijado por la modalidad (solo lectura)
-    HistoriaClinicaStep.tsx
-    DocumentacionEticaStep.tsx   # constancia ética, consentimiento, departamento, certificado (only with HC)
+    HistoriaClinicaStep.tsx  # revisión de HC (monto fijo S/ 50, solo lectura), comprobante y certificado de buenas prácticas
     ResumenStep.tsx          # read-only summary of all steps, with a big "Editar" button per section
 ```
 
@@ -71,7 +70,8 @@ While a reached step is being revisited (`currentIndex < maxReachedIndex`), the 
 - **Institucional vs. externo** (`ExpedienteStep.tsx`): the `esInstitucional` switch controls `lugarEjecucion` and `destinoIds`. Institutional → `lugarEjecucion` is fixed to the Hospital Regional institution's name and destinos (memos) apply. Non-institutional → `lugarEjecucion` is free text, validated (`normalizeAlnum` in `protocol.schema.ts`) to reject any casing/spacing/hyphen variant of "Hospital Regional", and `destinoIds` is cleared and hidden entirely (not just disabled).
 - **Facultad gated on `esUniversidad`** (`InstitucionStep.tsx`): the Facultad field only renders when the selected Institución has `esUniversidad: true` (see `Institution` in `types/entities.ts`); switching to a non-university institution clears `facultadId`.
 - **Pago exonerado** (`PagoStep.tsx`, sección del paso "Institución y pago"): the amount is read-only and is the fee of the chosen modality; the receipt (BOLETA `B###-n`, FACTURA `F###-n`, correlativo hasta 8 dígitos; `lib/comprobante.ts`, espejo de `comprobante.util.ts` del backend) is required when not exonerated. The N° de expediente follows `\d{1,4}/\d{1,6}`. The step asks first whether the protocol is a convenio (`esConvenio`, which makes `convenioId` required and hides the payment fields; turning it off clears `convenioId`). A protocol with a convenio or an enmienda pays 0 and carries no receipt; the amount is preloaded with the modality fee and comes back to it when the exoneration is lifted. The review purpose/date are no longer asked for at registration.
-- **Documentación ética al registrar** (`DocumentacionEticaStep.tsx`): a constancia ética needs its N° and date; the certificado de buenas prácticas is only shown (and sent) when the protocol requires HC review. The CIEI only evaluates this documentation and sets the risk level.
+- **Historia clínica** (`HistoriaClinicaStep.tsx`): the review amount is fixed (`HC_REVIEW_FEE`, S/ 50, read-only) and the certificado de buenas prácticas is asked (and sent) only when the protocol requires HC review. Constancia ética, consentimiento informado and departamento dirigido are no longer captured at registration (legacy data is still shown in the detail when present). The CIEI evaluates the certificate but its absence never blocks finalizing.
+- **Modalidad según institucional** (`InstitucionStep.tsx`): when the protocol is institutional the extrainstitucional modality is not offered (and a previous choice is cleared); only pregrado/posgrado remain.
 - **No overlapping team roles** (`EquipoStep.tsx`): `investigadorPrincipalId` is excluded from the `teamOptions` passed to the coinvestigadores/asesores `MultiCombobox`, so the same researcher can't be picked twice.
 
 If the backend adds or changes a rule in `protocolo.rules.ts`, mirror it here — check `expediente_hrl_api/CLAUDE.md`'s "Protocol" section and the corresponding `Protocolo*Exception` classes for the current source of truth, then add/update the matching `case` in `protocol-error-messages.ts` for any new `DomainErrorCode`.
@@ -194,7 +194,7 @@ Rules:
 
 ## Flujo de observaciones (detalle de protocolo)
 
-- Un protocolo `*_OBSERVED` abre con `PendingObservationPanel`: observaciones agrupadas por tipo (`ObservationList`), comité, fecha, autor (solo en la vista admin) y el botón "Subsanar observación" (única entrada a la corrección). El historial (`ProtocolReviewTimeline`) va justo debajo y marca esa entrada como pendiente en vez de repetir el texto. Las observaciones de dictámenes antiguos (sin tipo) se muestran como "General".
-- `ProtocolReviewDialog`: el resultado se elige con `RadioCardGroup` (cada opción explica su consecuencia; "Finalizar" aparece deshabilitado con su motivo cuando falta documentación ética registrada). Las observaciones son una lista repetible de tipo + texto (`useFieldArray`; OBSERVED exige al menos una completa, las filas vacías se descartan, una fila a medias marca error por campo con `setError`). El CIEI que finaliza solo establece el nivel de riesgo y ve en solo lectura la documentación registrada al crear. El pago ya no se verifica aquí. El error del servidor va en `FormAlert`.
-- `ProtocolCorrectDialog` muestra las observaciones y habilita, además de título y lugar de ejecución, la sección de pago (si no está exonerado y hay observaciones ADMINISTRATIVE o sin tipo) y la de documentación ética (observaciones ETHICS_CONSTANCE, INFORMED_CONSENT o sin tipo); "Mostrar todos los campos corregibles" abre ambas. Un campo vacío de pago o departamento se envía como `null` para limpiarlo.
+- Un protocolo `*_OBSERVED` abre con `PendingObservationPanel`: observaciones agrupadas por tipo (`ObservationList`), comité, fecha, autor (solo en la vista admin) y el botón "Corregir observación" (única entrada a la corrección). El historial (`ProtocolReviewTimeline`) va justo debajo y marca esa entrada como pendiente en vez de repetir el texto. Las observaciones de dictámenes antiguos (sin tipo) se muestran como "General".
+- `ProtocolReviewDialog`: el resultado se elige con `RadioCardGroup` (cada opción explica su consecuencia; "Finalizar" solo aparece deshabilitado mientras haya una observación del CIEI pendiente de corregir). Al elegir "Observar" siempre hay una observación lista, con el tipo "Otro" por defecto (`useFieldArray`; las filas sin texto se descartan, una fila con texto pero sin tipo marca error con `setError`). El CIEI que finaliza solo establece el nivel de riesgo; si el protocolo requiere HC y no tiene certificado se le avisa, pero no se bloquea la finalización. El error del servidor va en `FormAlert`.
+- `ProtocolCorrectDialog` muestra las observaciones y, por defecto, solo un comentario opcional de la corrección: muchas correcciones son cambios internos fuera del sistema. "Mostrar campos corregibles" abre título, lugar de ejecución, pago (si no está exonerado; el monto es de solo lectura) y certificado (si hay HC). El comentario se envía como `correctionComment`, queda en el historial (`protocol.corrections`) y se ve en la línea de tiempo del admin y del investigador. Un campo vacío de pago se envía como `null` para limpiarlo.
 - Etiquetas de comité, resultado y tipo de observación: `pages/protocols/protocol-review-labels.ts`.

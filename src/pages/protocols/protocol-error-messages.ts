@@ -8,7 +8,7 @@ export function getProtocolErrorMessage(error: unknown): string {
       case 'PROTOCOL_NOT_FOUND':
         return 'El protocolo ya no existe. Actualiza la lista e intenta nuevamente.'
       case 'PROTOCOL_NOT_OBSERVED':
-        return 'Solo se puede subsanar un protocolo que esté observado por el CIC o el CIEI.'
+        return 'Solo se puede corregir un protocolo que esté observado por el CIC o el CIEI.'
       case 'PROTOCOL_ORIGINAL_NOT_AMENDABLE':
         return 'Solo se puede enmendar un protocolo finalizado.'
       case 'PROTOCOL_INVALID_REFERENCE':
@@ -48,13 +48,11 @@ export function getProtocolErrorMessage(error: unknown): string {
       case 'PROTOCOL_REVIEW_OBSERVATION_PENDING':
         return 'No se puede finalizar el protocolo mientras existan observaciones pendientes del CIEI.'
       case 'PROTOCOL_REVIEW_FINALIZATION_INCOMPLETE':
-        return 'Para finalizar, el CIEI debe establecer el nivel de riesgo y el protocolo debe tener registradas la constancia ética y el consentimiento informado. Si falta documentación, obsérvalo para que se subsane.'
+        return 'Para finalizar, el CIEI debe establecer el nivel de riesgo del protocolo.'
       case 'PROTOCOL_REVIEW_ETHICS_FIELDS_NOT_ALLOWED':
         return 'El nivel de riesgo solo lo establece el Comité de Ética (CIEI).'
       case 'PROTOCOL_REVIEW_CONCURRENT_UPDATE':
         return 'El estado del protocolo cambió recientemente. Actualiza la página e intenta nuevamente.'
-      case 'PROTOCOL_REVIEW_GOOD_PRACTICES_CERTIFICATE_REQUIRED':
-        return 'El protocolo requiere revisión de historia clínica y no tiene registrado el certificado de buenas prácticas. Obsérvalo para que se subsane.'
       case 'PROTOCOL_REVIEW_INVALID_OUTCOME_FOR_COMMITTEE':
         return 'El resultado seleccionado no es válido para el comité seleccionado.'
       case 'RESEARCHER_ACCOUNT_NOT_LINKED':
