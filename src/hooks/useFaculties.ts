@@ -4,11 +4,15 @@ import { createFaculty, deleteFaculty, getFacultyById, listFaculties, updateFacu
 import { getFacultyErrorMessage } from '@/pages/faculties/faculty-error-messages'
 import type { CreateFacultyInput, UpdateFacultyInput } from '@/types/entities'
 
-export function useFacultiesList(params: { page: number; limit: number }) {
+export function useFacultiesList(
+  params: { page: number; limit: number; institutionId?: string },
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
-    queryKey: ['faculties', 'list', params.page, params.limit],
+    queryKey: ['faculties', 'list', params.page, params.limit, params.institutionId ?? null],
     queryFn: () => listFaculties(params),
     placeholderData: (previous) => previous,
+    enabled: options.enabled ?? true,
   })
 }
 

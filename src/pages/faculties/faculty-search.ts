@@ -12,5 +12,5 @@ export function matchesFacultySearch(faculty: Faculty, term: string): boolean {
   const query = normalize(term)
   if (!query) return true
 
-  return normalize(faculty.name).includes(query)
+  return normalize(faculty.name).includes(query) || normalize(faculty.institutionName ?? '').includes(query)
 }

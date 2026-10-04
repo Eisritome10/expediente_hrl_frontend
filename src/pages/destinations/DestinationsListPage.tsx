@@ -12,7 +12,7 @@ import { DestinationFormDialog } from '@/pages/destinations/DestinationFormDialo
 import { matchesDestinationSearch } from '@/pages/destinations/destination-search'
 import type { Destination } from '@/types/entities'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
 const SEARCH_FETCH_LIMIT = 100
 
 export function DestinationsListPage() {

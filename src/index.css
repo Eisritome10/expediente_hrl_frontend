@@ -15,12 +15,17 @@
   --color-surface: #ffffff;
   --color-surface-muted: #f6f7f8;
   --color-border: #e2e5e4;
+  /* Borde de controles de formulario: 3:1 sobre blanco (WCAG 1.4.11). El borde claro queda para divisores. */
+  --color-border-strong: #858d88;
   --color-text: #1c1f1d;
   --color-text-muted: #5c655f;
+  /* Placeholder: 4.5:1 sobre blanco, pero visiblemente más tenue que el valor escrito. */
+  --color-placeholder: #6b736e;
 }
 
 :root {
   color-scheme: light;
+  accent-color: var(--color-brand-600);
 }
 
 body {
@@ -36,4 +41,35 @@ body {
 
 #root {
   min-height: 100dvh;
+}
+
+::selection {
+  background: var(--color-brand-100);
+  color: var(--color-brand-900);
+}
+
+input,
+textarea {
+  caret-color: var(--color-brand-600);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

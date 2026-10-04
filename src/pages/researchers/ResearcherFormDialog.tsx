@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { WarningCircleIcon } from '@phosphor-icons/react'
+import { InfoIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input, FormField } from '@/components/ui/Input'
@@ -9,6 +9,7 @@ import { useCreateResearcher, useUpdateResearcher } from '@/hooks/useResearchers
 import { researcherFormSchema, type ResearcherFormValues } from '@/schemas/researcher.schema'
 import { getResearcherErrorMessage } from '@/pages/researchers/researcher-error-messages'
 import type { Researcher } from '@/types/entities'
+import { FormAlert } from '@/components/ui/FormAlert'
 
 export function ResearcherFormDialog({
   open,
@@ -72,6 +73,13 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {!isEditing && (
+        <div className="flex items-start gap-2 rounded-lg bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+          <InfoIcon size={18} className="shrink-0" />
+          <span>Se creará una cuenta de acceso: el usuario y la contraseña inicial serán el DNI del investigador.</span>
+        </div>
+      )}
+
       <FormField label="DNI" htmlFor="dni" error={errors.dni?.message} required>
         <Input
           id="dni"
@@ -107,10 +115,7 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
       </FormField>
 
       {formError && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
-          <WarningCircleIcon size={18} className="shrink-0" />
-          {formError}
-        </div>
+        <FormAlert>{formError}</FormAlert>
       )}
 
       <div className="mt-1 flex justify-end gap-2 border-t border-border pt-4">

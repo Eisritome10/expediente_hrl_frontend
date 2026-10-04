@@ -12,7 +12,7 @@ import { ResearcherFormDialog } from '@/pages/researchers/ResearcherFormDialog'
 import { matchesResearcherSearch } from '@/pages/researchers/researcher-search'
 import type { Researcher } from '@/types/entities'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
 const SEARCH_FETCH_LIMIT = 100
 
 export function ResearchersListPage() {

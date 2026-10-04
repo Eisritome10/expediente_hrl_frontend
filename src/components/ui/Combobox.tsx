@@ -72,11 +72,11 @@ export function Combobox({
         disabled={disabled}
         onClick={() => !disabled && setOpen(true)}
         className={cn(
-          'flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-white px-3.5 py-2.5 text-left text-sm text-text transition focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-surface-muted',
-          error && 'border-red-400',
+          'flex w-full items-center justify-between gap-2 rounded-lg border border-border-strong bg-white hover:border-text-muted px-3.5 py-2.5 text-left text-sm text-text transition focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-surface-muted',
+          error && 'border-red-600',
         )}
       >
-        <span className={cn('truncate', !selected && 'text-text-muted')}>{selected ? selected.label : placeholder}</span>
+        <span className={cn('truncate', !selected && 'text-placeholder')}>{selected ? selected.label : placeholder}</span>
         <CaretDownIcon size={14} className="shrink-0 text-text-muted" />
       </button>
 
@@ -96,7 +96,7 @@ export function Combobox({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar..."
-              className="w-full rounded-lg border border-border bg-white py-2.5 pr-3 pl-9 text-sm text-text placeholder:text-text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+              className="w-full rounded-lg border border-border-strong bg-white py-2.5 pr-3 pl-9 text-sm text-text placeholder:text-placeholder focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
             />
           </div>
 

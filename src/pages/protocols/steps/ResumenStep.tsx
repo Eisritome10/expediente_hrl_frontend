@@ -2,12 +2,15 @@ import type { ReactNode } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { PencilSimpleIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
+import { useAgreementsList } from '@/hooks/useAgreements'
 import { useDestinationsList } from '@/hooks/useDestinations'
 import { useFacultiesList } from '@/hooks/useFaculties'
 import { useInstitutionsList } from '@/hooks/useInstitutions'
 import { useModalitiesList } from '@/hooks/useModalities'
+import { useProtocol } from '@/hooks/useProtocols'
 import { useResearchersList } from '@/hooks/useResearchers'
 import { useResearchLinesByType } from '@/hooks/useResearchLines'
+import { useStudyDesignsList } from '@/hooks/useStudyDesigns'
 import type { ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
@@ -42,11 +45,21 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
 
   const researchers = useResearchersList({ page: 1, limit: CATALOG_LIMIT })
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
-  const faculties = useFacultiesList({ page: 1, limit: CATALOG_LIMIT })
+  const faculties = useFacultiesList(
+    { page: 1, limit: CATALOG_LIMIT, institutionId: values.institucionId || undefined },
+    { enabled: Boolean(values.institucionId) && Boolean(values.facultadId) },
+  )
   const destinations = useDestinationsList({ page: 1, limit: CATALOG_LIMIT })
+  const studyDesigns = useStudyDesignsList({ page: 1, limit: CATALOG_LIMIT })
   const modalities = useModalitiesList({ page: 1, limit: CATALOG_LIMIT })
+  const agreements = useAgreementsList({ limit: CATALOG_LIMIT })
   const lineasHrl = useResearchLinesByType('HRL')
   const lineasMeta2030 = useResearchLinesByType('META_2030')
+  const { data: originalProtocol } = useProtocol(
+    values.esEnmienda && values.protocoloOriginalId ? values.protocoloOriginalId : null,
+  )
+
+  const exonerado = values.esEnmienda || values.esConvenio
 
   const researcherLabel = (id: string) => {
     const researcher = researchers.data?.data.find((item) => item.id === id)
@@ -60,7 +73,12 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
     .map((id) => destinations.data?.data.find((item) => item.id === id)?.description)
     .filter(Boolean)
     .join(', ')
+  const studyDesignLabels = values.studyDesignIds
+    .map((id) => studyDesigns.data?.data.find((item) => item.id === id)?.name)
+    .filter(Boolean)
+    .join(', ')
   const modalityLabel = modalities.data?.data.find((item) => item.id === values.modalidadId)?.name ?? ''
+  const agreementLabel = agreements.data?.data.find((item) => item.id === values.convenioId)?.name ?? ''
   const lineaHrlLabel = lineasHrl.data?.data.find((item) => item.id === values.lineaHrlId)?.name ?? ''
   const lineaMeta2030Label = lineasMeta2030.data?.data.find((item) => item.id === values.lineaMeta2030Id)?.name ?? ''
 
@@ -71,17 +89,30 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
         a cualquier sección y corregir algo.
       </p>
 
-      <SummarySection title="Expediente" onEdit={() => onEditStep(0)}>
+      <SummarySection title="Tipo de registro" onEdit={() => onEditStep(0)}>
+        <SummaryRow
+          label="Tipo"
+          value={values.esEnmienda ? 'Enmienda de un protocolo finalizado' : 'Nuevo protocolo'}
+        />
+        {values.esEnmienda && (
+          <SummaryRow
+            label="Protocolo original"
+            value={originalProtocol ? `N° ${originalProtocol.nroExpediente}` : values.protocoloOriginalId}
+          />
+        )}
+      </SummarySection>
+
+      <SummarySection title="Expediente" onEdit={() => onEditStep(1)}>
         <SummaryRow label="N° de expediente" value={values.nroExpediente} />
         <SummaryRow label="Fecha de recepción" value={values.fechaRecepcion} />
         <SummaryRow label="Título" value={values.titulo} />
-        <SummaryRow label="Diseño del estudio" value={values.disenoEstudio} />
+        <SummaryRow label="Diseño del estudio" value={studyDesignLabels} />
         <SummaryRow label="Lugar de ejecución" value={values.lugarEjecucion} />
         <SummaryRow label="Institucional" value={values.esInstitucional ? 'Sí' : 'No'} />
         <SummaryRow label="Destinos (memos)" value={destinationLabels} />
       </SummarySection>
 
-      <SummarySection title="Equipo y líneas" onEdit={() => onEditStep(1)}>
+      <SummarySection title="Equipo y líneas" onEdit={() => onEditStep(2)}>
         <SummaryRow label="Investigador principal" value={researcherLabel(values.investigadorPrincipalId)} />
         <SummaryRow label="Coinvestigadores" value={researcherList(values.coinvestigadorIds)} />
         <SummaryRow label="Asesores" value={researcherList(values.asesorIds)} />
@@ -89,23 +120,24 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
         <SummaryRow label="Línea Meta 2030" value={lineaMeta2030Label} />
       </SummarySection>
 
-      <SummarySection title="Institución y modalidad" onEdit={() => onEditStep(2)}>
+      <SummarySection title="Institución y modalidad" onEdit={() => onEditStep(3)}>
         <SummaryRow label="Institución" value={institutionLabel} />
         <SummaryRow label="Facultad" value={facultyLabel} />
         <SummaryRow label="Modalidad" value={modalityLabel} />
       </SummarySection>
 
-      <SummarySection title="Revisión y pago" onEdit={() => onEditStep(3)}>
-        <SummaryRow label="Propósito de la revisión" value={values.propositoRevision} />
-        <SummaryRow label="Fecha de revisión" value={values.fechaRevision ?? ''} />
-        <SummaryRow label="Enmienda" value={values.esEnmienda ? 'Sí' : 'No'} />
-        <SummaryRow label="Convenio" value={values.esConvenio ? `Sí — ${values.nombreConvenio}` : 'No'} />
-        {!values.esEnmienda && !values.esConvenio && (
-          <SummaryRow
-            label="Pago de revisión"
-            value={values.pagoRevision ? `S/ ${Number(values.pagoRevision).toFixed(2)} (${values.tipoComprobante} ${values.comprobanteRevision ?? ''})` : ''}
-          />
-        )}
+      <SummarySection title="Pago" onEdit={() => onEditStep(3)}>
+        <SummaryRow label="Convenio" value={agreementLabel ? `Sí: ${agreementLabel}` : 'No'} />
+        <SummaryRow
+          label="Pago de revisión"
+          value={
+            exonerado
+              ? 'Exonerado (S/ 0.00)'
+              : values.pagoRevision !== undefined && !Number.isNaN(values.pagoRevision)
+                ? `S/ ${Number(values.pagoRevision).toFixed(2)} (${values.tipoComprobante} ${values.comprobanteRevision})`
+                : ''
+          }
+        />
       </SummarySection>
 
       <SummarySection title="Historia clínica" onEdit={() => onEditStep(4)}>
@@ -113,10 +145,28 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
         {values.requiereRevisionHc && (
           <SummaryRow
             label="Detalle"
-            value={`S/ ${Number(values.montoHc ?? 0).toFixed(2)} — ${values.tipoComprobanteHc} ${values.nroComprobanteHc ?? ''}`}
+            value={`S/ ${Number(values.montoHc ?? 0).toFixed(2)} (${values.tipoComprobanteHc} ${values.nroComprobanteHc ?? ''})`}
           />
         )}
-        <SummaryRow label="Certificado de buenas prácticas" value={values.certificadoBuenasPracticas ? 'Sí' : 'No'} />
+      </SummarySection>
+
+      <SummarySection title="Documentación ética" onEdit={() => onEditStep(5)}>
+        <SummaryRow
+          label="Constancia ética"
+          value={
+            values.tieneConstanciaEtica
+              ? `Sí (${values.idConstanciaEtica}, ${values.fechaConstancia})`
+              : 'No cuenta con constancia'
+          }
+        />
+        <SummaryRow label="Consentimiento informado" value={values.consentimientoInformado ? 'Sí' : 'No'} />
+        <SummaryRow label="Departamento dirigido" value={values.departamentoDirigidoPermiso} />
+        {values.requiereRevisionHc && (
+          <SummaryRow
+            label="Certificado de buenas prácticas"
+            value={values.certificadoBuenasPracticas ? 'Sí' : 'No'}
+          />
+        )}
       </SummarySection>
     </div>
   )

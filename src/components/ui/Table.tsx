@@ -1,4 +1,4 @@
-import type { ReactNode, TdHTMLAttributes, ThHTMLAttributes } from 'react'
+import type { HTMLAttributes, ReactNode, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 import { Skeleton } from '@/components/ui/Skeleton'
 
@@ -29,14 +29,10 @@ export function TableBody({ children }: { children: ReactNode }) {
 export function TableRow({
   children,
   className,
-  onClick,
-}: {
-  children: ReactNode
-  className?: string
-  onClick?: () => void
-}) {
+  ...props
+}: { children: ReactNode; className?: string } & HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={cn('transition-colors hover:bg-surface-muted/60', className)} onClick={onClick}>
+    <tr className={cn('transition-colors hover:bg-surface-muted/60', className)} {...props}>
       {children}
     </tr>
   )

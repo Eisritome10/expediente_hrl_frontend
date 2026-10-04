@@ -4,31 +4,34 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { CaretLeftIcon, CaretRightIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Stepper, type StepDefinition } from '@/components/ui/Stepper'
-import { useCreateProtocol } from '@/hooks/useProtocols'
+import { useCreateProtocol, useProtocol } from '@/hooks/useProtocols'
 import { getProtocolErrorMessage } from '@/pages/protocols/protocol-error-messages'
+import { TipoRegistroStep } from '@/pages/protocols/steps/TipoRegistroStep'
 import { ExpedienteStep } from '@/pages/protocols/steps/ExpedienteStep'
 import { EquipoStep } from '@/pages/protocols/steps/EquipoStep'
-import { InstitucionStep } from '@/pages/protocols/steps/InstitucionStep'
-import { RevisionStep } from '@/pages/protocols/steps/RevisionStep'
+import { InstitucionPagoStep } from '@/pages/protocols/steps/InstitucionPagoStep'
 import { HistoriaClinicaStep } from '@/pages/protocols/steps/HistoriaClinicaStep'
+import { DocumentacionEticaStep } from '@/pages/protocols/steps/DocumentacionEticaStep'
 import { ResumenStep } from '@/pages/protocols/steps/ResumenStep'
 import { protocolFormDefaultValues, protocolFormSchema, protocolStepFields, type ProtocolFormValues } from '@/schemas/protocol.schema'
 import type { CreateProtocolInput } from '@/types/entities'
+import { FormAlert } from '@/components/ui/FormAlert'
 
 const STEPS: (StepDefinition & {
   key: keyof typeof protocolStepFields
   render: (goToStep: (index: number) => void) => ReactElement
 })[] = [
+  { id: 'tipo', label: 'Tipo de registro', key: 'tipo', render: () => <TipoRegistroStep /> },
   { id: 'expediente', label: 'Expediente', key: 'expediente', render: () => <ExpedienteStep /> },
   { id: 'equipo', label: 'Equipo y líneas', key: 'equipo', render: () => <EquipoStep /> },
-  { id: 'institucion', label: 'Institución', key: 'institucion', render: () => <InstitucionStep /> },
-  { id: 'revision', label: 'Revisión y pago', key: 'revision', render: () => <RevisionStep /> },
+  { id: 'institucionPago', label: 'Institución y pago', key: 'institucionPago', render: () => <InstitucionPagoStep /> },
   { id: 'historiaClinica', label: 'Historia clínica', key: 'historiaClinica', render: () => <HistoriaClinicaStep /> },
+  { id: 'documentacionEtica', label: 'Documentación ética', key: 'documentacionEtica', render: () => <DocumentacionEticaStep /> },
   { id: 'resumen', label: 'Resumen', key: 'resumen', render: (goToStep) => <ResumenStep onEditStep={goToStep} /> },
 ]
 
@@ -41,11 +44,12 @@ function numberOrUndefined(value: number | undefined): number | undefined {
 }
 
 function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput {
+  const convenioId = values.esConvenio ? emptyToUndefined(values.convenioId) : undefined
+  const exonerado = values.esEnmienda || values.esConvenio
   return {
     nroExpediente: values.nroExpediente,
     fechaRecepcion: values.fechaRecepcion,
     titulo: values.titulo,
-    disenoEstudio: values.disenoEstudio,
     lugarEjecucion: values.lugarEjecucion,
     esInstitucional: values.esInstitucional,
     investigadorPrincipalId: values.investigadorPrincipalId,
@@ -54,22 +58,25 @@ function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput 
     institucionId: emptyToUndefined(values.institucionId),
     facultadId: emptyToUndefined(values.facultadId),
     destinoIds: values.destinoIds,
+    studyDesignIds: values.studyDesignIds,
     lineaHrlId: values.lineaHrlId,
     lineaMeta2030Id: values.lineaMeta2030Id,
     modalidadId: values.modalidadId,
-    propositoRevision: values.propositoRevision,
-    fechaRevision: emptyToUndefined(values.fechaRevision),
-    tipoComprobante: values.esEnmienda || values.esConvenio ? undefined : emptyToUndefined(values.tipoComprobante),
-    comprobanteRevision: values.esEnmienda || values.esConvenio ? undefined : emptyToUndefined(values.comprobanteRevision),
-    pagoRevision: values.esEnmienda || values.esConvenio ? undefined : numberOrUndefined(values.pagoRevision),
-    esEnmienda: values.esEnmienda,
-    esConvenio: values.esConvenio,
-    nombreConvenio: values.esConvenio ? emptyToUndefined(values.nombreConvenio) : undefined,
+    convenioId,
+    pagoRevision: exonerado ? 0 : numberOrUndefined(values.pagoRevision),
+    tipoComprobante: exonerado ? undefined : emptyToUndefined(values.tipoComprobante),
+    comprobanteRevision: exonerado ? undefined : emptyToUndefined(values.comprobanteRevision)?.trim().toUpperCase(),
+    protocoloOriginalId: emptyToUndefined(values.protocoloOriginalId),
     requiereRevisionHc: values.requiereRevisionHc,
     montoHc: values.requiereRevisionHc ? numberOrUndefined(values.montoHc) : undefined,
     tipoComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.tipoComprobanteHc) : undefined,
     nroComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.nroComprobanteHc) : undefined,
-    certificadoBuenasPracticas: values.certificadoBuenasPracticas,
+    tieneConstanciaEtica: values.tieneConstanciaEtica,
+    idConstanciaEtica: values.tieneConstanciaEtica ? emptyToUndefined(values.idConstanciaEtica) : undefined,
+    fechaConstancia: values.tieneConstanciaEtica ? emptyToUndefined(values.fechaConstancia) : undefined,
+    consentimientoInformado: values.consentimientoInformado,
+    departamentoDirigidoPermiso: emptyToUndefined(values.departamentoDirigidoPermiso),
+    certificadoBuenasPracticas: values.requiereRevisionHc ? values.certificadoBuenasPracticas : false,
   }
 }
 
@@ -104,12 +111,15 @@ export function ProtocolWizardPage() {
   const currentStep = STEPS[stepIndex]
   const isLastStep = stepIndex === STEPS.length - 1
   const nroExpediente = methods.watch('nroExpediente')
+  const esEnmienda = methods.watch('esEnmienda')
+  const protocoloOriginalId = methods.watch('protocoloOriginalId')
+  const { data: originalProtocol } = useProtocol(esEnmienda && protocoloOriginalId ? protocoloOriginalId : null)
 
   const goToStep = (index: number) => setStepIndex(Math.max(0, Math.min(index, STEPS.length - 1)))
 
   const goNext = async () => {
     const fields = protocolStepFields[currentStep.key]
-    const isValid = fields.length === 0 || (await methods.trigger(fields as (keyof ProtocolFormValues)[]))
+    const isValid = fields.length === 0 || (await methods.trigger(fields))
     if (isValid) setStepIndex((index) => Math.min(index + 1, STEPS.length - 1))
   }
 
@@ -149,10 +159,7 @@ export function ProtocolWizardPage() {
           </Card>
 
           {formError && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-              <WarningCircleIcon size={18} className="shrink-0" />
-              {formError}
-            </div>
+            <FormAlert>{formError}</FormAlert>
           )}
 
           <div className="flex items-center justify-between gap-3">
@@ -184,10 +191,18 @@ export function ProtocolWizardPage() {
         tone="brand"
         title="Confirmar registro"
         description={
-          <>
-            ¿Confirmas registrar el protocolo <strong>{nroExpediente || 'sin número de expediente'}</strong>? Revisa los
-            datos del resumen antes de continuar — una vez registrado no se puede editar.
-          </>
+          esEnmienda ? (
+            <>
+              ¿Confirmas registrar la enmienda del protocolo original{' '}
+              <strong>N° {originalProtocol?.nroExpediente ?? 'seleccionado'}</strong>? Revisa los datos del resumen antes
+              de continuar. Una vez registrada no se puede editar.
+            </>
+          ) : (
+            <>
+              ¿Confirmas registrar el protocolo <strong>{nroExpediente || 'sin número de expediente'}</strong>? Revisa los
+              datos del resumen antes de continuar. Una vez registrado no se puede editar.
+            </>
+          )
         }
       />
     </div>

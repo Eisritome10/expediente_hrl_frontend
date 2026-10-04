@@ -1,6 +1,6 @@
 ## What this project is
 
-`expediente_hrl_front` is the React + TypeScript admin panel for `expediente_hrl_api`, the REST API that tracks research protocols for Hospital Regional de Loreto (HRL). It replaces the legacy `investigahrl` PHP frontend. Domain entities mirror the backend: Investigador (`Researcher`), Institución (`Institution`), Facultad (`Faculty`), Destino (`Destination`), Línea de Investigación (`ResearchLine`), Modalidad (`Modality`), Protocolo (`Protocol`).
+`expediente_hrl_front` is the React + TypeScript admin panel for `expediente_hrl_api`, the REST API that tracks research protocols for Hospital Regional de Loreto (HRL). It replaces the legacy `investigahrl` PHP frontend. Domain entities mirror the backend: Investigador (`Researcher`), Institución (`Institution`), Facultad (`Faculty`), Destino (`Destination`), Línea de Investigación (`ResearchLine`), Modalidad (`Modality`), Diseño de Estudio (`StudyDesign`), Protocolo (`Protocol`).
 
 **This file documents the conventions actually implemented in `src/`.** If you're adding or changing a page/module, match what's already there. The sibling repo `expediente_hrl_api` (see its own `CLAUDE.md`) is the source of truth for entity shapes, validation rules, and `DomainErrorCode` values — this frontend must stay in sync with it, not diverge.
 
@@ -21,7 +21,7 @@ src/
   app/            # providers.tsx (QueryClientProvider, AuthProvider), RequireAuth.tsx
 ```
 
-Simple catalog entities (Researcher, Institution, Faculty, Destination, Modality) follow this exact template. `Protocol` is the one entity with real business rules and multi-step UI, so it additionally has `pages/protocols/steps/` (see below).
+Simple catalog entities (Researcher, Institution, Faculty, Destination, Modality, StudyDesign) follow this exact template. `Protocol` is the one entity with real business rules and multi-step UI, so it additionally has `pages/protocols/steps/` (see below) and its own `protocol-search.ts`/`protocol-error-messages.ts` at the top level of `pages/protocols/` rather than the per-entity subfolder pattern.
 
 ## Per-entity template (catalog entities)
 
@@ -47,14 +47,18 @@ New failure codes added on the backend for an entity must get a matching `case` 
 pages/protocols/
   ProtocolsListPage.tsx      # list + search
   ProtocolWizardPage.tsx     # owns the FormProvider, step index, Stepper, and submit
-  ProtocolDetailPage.tsx     # read-only detail view
+  ProtocolDetailPage.tsx     # admin detail: pending-observation panel, review history, documents
+  MyProtocolsPage.tsx / MyProtocolDetailPage.tsx   # researcher read-only list and thread
+  ProtocolReviewDialog.tsx / ProtocolCorrectDialog.tsx   # dictamen (observations by type) / subsanar
   protocol-error-messages.ts
   steps/
+    TipoRegistroStep.tsx     # Nuevo vs Enmienda (search a FINALIZED original, prefill the whole form)
     ExpedienteStep.tsx       # expediente number, dates, título, esInstitucional switch, lugar de ejecución, destinos
-    InstitucionStep.tsx      # institución, facultad (conditional), modalidad
     EquipoStep.tsx           # investigador principal, coinvestigadores, asesores, líneas de investigación
+    InstitucionPagoStep.tsx  # "Institución y pago": InstitucionStep (institución, facultad condicional, modalidad) + PagoStep
+    PagoStep.tsx             # "¿Es convenio?": si sí se elige el convenio; si no, boleta/factura del pago con monto fijado por la modalidad (solo lectura)
     HistoriaClinicaStep.tsx
-    RevisionStep.tsx
+    DocumentacionEticaStep.tsx   # constancia ética, consentimiento, departamento, certificado (only with HC)
     ResumenStep.tsx          # read-only summary of all steps, with a big "Editar" button per section
 ```
 
@@ -66,6 +70,8 @@ While a reached step is being revisited (`currentIndex < maxReachedIndex`), the 
 
 - **Institucional vs. externo** (`ExpedienteStep.tsx`): the `esInstitucional` switch controls `lugarEjecucion` and `destinoIds`. Institutional → `lugarEjecucion` is fixed to the Hospital Regional institution's name and destinos (memos) apply. Non-institutional → `lugarEjecucion` is free text, validated (`normalizeAlnum` in `protocol.schema.ts`) to reject any casing/spacing/hyphen variant of "Hospital Regional", and `destinoIds` is cleared and hidden entirely (not just disabled).
 - **Facultad gated on `esUniversidad`** (`InstitucionStep.tsx`): the Facultad field only renders when the selected Institución has `esUniversidad: true` (see `Institution` in `types/entities.ts`); switching to a non-university institution clears `facultadId`.
+- **Pago exonerado** (`PagoStep.tsx`, sección del paso "Institución y pago"): the amount is read-only and is the fee of the chosen modality; the receipt (BOLETA `B###-n`, FACTURA `F###-n`, correlativo hasta 8 dígitos; `lib/comprobante.ts`, espejo de `comprobante.util.ts` del backend) is required when not exonerated. The N° de expediente follows `\d{1,4}/\d{1,6}`. The step asks first whether the protocol is a convenio (`esConvenio`, which makes `convenioId` required and hides the payment fields; turning it off clears `convenioId`). A protocol with a convenio or an enmienda pays 0 and carries no receipt; the amount is preloaded with the modality fee and comes back to it when the exoneration is lifted. The review purpose/date are no longer asked for at registration.
+- **Documentación ética al registrar** (`DocumentacionEticaStep.tsx`): a constancia ética needs its N° and date; the certificado de buenas prácticas is only shown (and sent) when the protocol requires HC review. The CIEI only evaluates this documentation and sets the risk level.
 - **No overlapping team roles** (`EquipoStep.tsx`): `investigadorPrincipalId` is excluded from the `teamOptions` passed to the coinvestigadores/asesores `MultiCombobox`, so the same researcher can't be picked twice.
 
 If the backend adds or changes a rule in `protocolo.rules.ts`, mirror it here — check `expediente_hrl_api/CLAUDE.md`'s "Protocol" section and the corresponding `Protocolo*Exception` classes for the current source of truth, then add/update the matching `case` in `protocol-error-messages.ts` for any new `DomainErrorCode`.
@@ -106,3 +112,89 @@ Every `api/<entity>.ts` file only calls `apiFetch` — no `fetch` calls anywhere
 
 - `expediente_hrl_api` (sibling directory) — the NestJS + Prisma backend this app consumes. Its `CLAUDE.md` documents the module template, `DomainErrorCode` enum, and per-entity business rules that this frontend must track.
 - `investigahrl` (sibling directory) — the legacy PHP system being replaced. Useful as a reference for field names and historical business logic when a rule in the current backend is ambiguous, but never a source of conventions for new code.
+
+## AI development pipeline
+
+For a full requirement (not a one-line change or exploration), use the `dev-pipeline` skill (`.claude/skills/dev-pipeline/SKILL.md`): it runs researcher → planner → implementer → validation (`npm run lint && npm run build`) → reviewer → fixer, stopping to ask for a human decision on ambiguity, architecture changes, or after 2 failed review iterations. The five roles are defined in `.claude/agents/`.
+
+If the work item lives in Taiga instead of being described inline, use the `taiga-pipeline` skill (`.claude/skills/taiga-pipeline/SKILL.md`) instead: it pulls the story/task/issue with the `taiga` subagent, gathers codebase context with `researcher`, persists both under `.claude/tasks/` (mirrored to Obsidian if configured), and then hands off to `dev-pipeline` from the planning step onward. Requires `USERNAME_TAIGA`/`PASSWORD_TAIGA`/`TAIGA_URL` in `.env`.
+
+## Herramientas y compatibilidad de entornos (Claude Code vs. Antigravity)
+
+Las directrices del proyecto permiten y promueven el uso de las **herramientas adaptadas de Antigravity, siempre y cuando se haga uso dentro del entorno de Antigravity**.
+
+### Regla de uso de herramientas adaptadas
+- **Dentro de Antigravity**: Se debe hacer uso de las herramientas nativas adaptadas de Antigravity (`view_file`, `replace_file_content`, `write_to_file`, `run_command`, `invoke_subagent`, `ask_question`, `read_url_content`, etc.). Queda estrictamente prohibido intentar invocar herramientas exclusivas de Claude Code (`EnterPlanMode`, `ExitPlanMode`, `AskUserQuestion`, o los nombres nativos `Read`/`Edit`/`Write`/`Bash`/`Agent`) que provoquen errores en la sesión.
+- **Dentro de Claude Code**: Se utilizan las herramientas nativas del CLI de Claude Code (`Read`, `Edit`, `Write`, `Bash`, `Agent`, `EnterPlanMode`, `AskUserQuestion`).
+
+### Evaluación contextual: según dónde se use la herramienta
+Toda invocación de herramientas debe evaluarse conforme a tres ejes:
+
+1. **Evaluación según el Entorno (Runtime Environment)**:
+   - **Claude Code**: Invoca herramientas del protocolo de Claude.
+   - **Antigravity**: Invoca herramientas del protocolo de Antigravity:
+     - Lectura: `view_file` (en vez de `Read`/`cat`).
+     - Edición: `replace_file_content` y `write_to_file` (en vez de `Edit`/`Write`).
+     - Terminal: `run_command` (en vez de `Bash`).
+     - Subagentes: `invoke_subagent` / `send_message` (en vez de `Agent`/`Task`).
+     - Preguntas al usuario: `ask_question` (en vez de `AskUserQuestion`).
+     - Planificación: Artefactos markdown en brain o comando `/plan` (en vez de `EnterPlanMode`/`ExitPlanMode`).
+     - Navegación web / docs: `read_url_content` / `search_web` (en vez de `WebFetch`).
+
+2. **Evaluación según el Rol / Fase del Pipeline (Scope & Permissions)**:
+   - **Researcher**:
+     - *Herramientas*: `view_file`, `run_command` (estrictamente de solo lectura: `git status`, `git diff`, `git log`, `graphify query`).
+     - *Evaluación*: Prohibido editar archivos (`replace_file_content`, `write_to_file`) o correr comandos de build/test/migración.
+   - **Planner**:
+     - *Herramientas*: `view_file`, `ask_question` (para `OPEN QUESTIONS` con opciones interactivas para el usuario), artefactos markdown para el plan.
+     - *Evaluación*: Prohibido escribir código en `src/`. No asumir decisiones arquitectónicas o de negocio no autorizadas sin consultar.
+   - **Implementer**:
+     - *Herramientas*: Si OpenCode/DeepSeek está instalado localmente, invocarlo con `run_command`. Si se ejecuta directamente en Antigravity (sin OpenCode o si este falla), evaluar el alcance y usar `replace_file_content` y `write_to_file` para ejecutar los `IMPLEMENTATION STEPS` del plan aprobado, respetando siempre `AFFECTED FILES` y las convenciones del proyecto. Finalizar obligatoriamente con la validación (`npm run lint && npm run build` vía `run_command`).
+   - **Reviewer**:
+     - *Herramientas*: `view_file`, `run_command` para inspeccionar `git diff`, `git status` y resultados de validaciones.
+     - *Evaluación*: Estrictamente solo lectura. Jamás aplicar modificaciones de código.
+   - **Fixer**:
+     - *Herramientas*: `replace_file_content`, `write_to_file`, `run_command`.
+     - *Evaluación*: Actuar exclusivamente sobre los puntos marcados en `REQUIRED_CHANGES`, seguido de la revalidación con `npm run lint && npm run build`.
+   - **Taiga**:
+     - *Herramientas*: `view_file` para `.env`, `read_url_content` o `run_command` (curl / pwsh) para interactuar con la API de Taiga.
+     - *Evaluación*: Prohibición absoluta de operaciones destructivas (`DELETE`) sin confirmación explícita del usuario.
+
+3. **Evaluación según Plataforma Host y Shell**:
+   - **Windows (`pwsh` en Antigravity)**: Los comandos de `run_command` se ejecutan en PowerShell. Evaluar la sintaxis (evitar operadores unix no soportados, usar `$env:VAR` si se requieren variables, manejar rutas con comillas ante espacios).
+   - **Linux/macOS (Bash en Claude Code o entornos Unix)**: Sintaxis estándar de Bash.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Instituciones y facultades
+
+- Una institución tiene un tipo (`InstitutionType`: Hospital, Universidad, Otra; `pages/institutions/institution-types.ts`). Hospital y Otra solo llevan nombre y abreviatura. Una Universidad abre `UniversityFacultiesEditor` dentro de `InstitutionFormDialog`: al crearla, las facultades escritas son un borrador que se guarda (cada una como `POST /faculties`) tras crear la institución; al editarla, cada alta o baja se guarda al instante.
+- Las facultades pertenecen a una universidad: `FacultyFormDialog` pide la universidad al crear (solo las de tipo Universidad) y no permite cambiarla al editar. `useFacultiesList` acepta `institutionId`; el paso "Institución y pago" del asistente solo carga las facultades de la universidad elegida y limpia la facultad al cambiar de institución.
+
+## Flujo del investigador (rol `RESEARCHER`)
+
+- `RequireAuth` acepta `roles`; un rol no permitido vuelve a su inicio (`lib/role-home.ts`: `ADMIN` → `/`, `RESEARCHER` → `/mis-protocolos`). Todo el panel administrativo va con `roles={['ADMIN']}`.
+- `ResearcherLayout` (sin sidebar) + `MyProtocolsPage` consumen `GET /protocols/mine` (`useMyProtocolsList`, tipo `ProtocolSummary`): solo lectura, con estado y una línea de qué hacer según `ProtocolStatus`. El endpoint solo pagina, así que buscar/filtrar trae hasta 100 y filtra en cliente.
+- `MyProtocolDetailPage` (`/mis-protocolos/:id`, `GET /protocols/mine/:id`, `useMyProtocol`): comité actual, enmienda, observación pendiente por tipo y el historial, todo de solo lectura y sin revisor ni montos. Un protocolo ajeno (404) y una cuenta sin vincular (403) se muestran como avisos.
+- `RESEARCHER_ACCOUNT_NOT_LINKED` (403) se muestra como aviso, no como error.
+- Los estados de protocolo viven en `pages/protocols/protocol-status.ts`; `ProtocolStatusBadge` solo renderiza.
+
+## Formularios: piezas compartidas
+
+- `FormField` vincula etiqueta, `hint` y error con el control (`aria-describedby`) vía contexto; los `Input`/`Textarea`/`Select`/`PasswordInput` lo leen solos. El error de servidor del formulario va en `FormAlert`, no con markup propio.
+- Los controles usan `border-border-strong` (3:1 sobre blanco) y `placeholder:text-placeholder`; `border-border` queda para divisores. Estados válido/inválido son excluyentes (ver `Input.tsx`).
+
+## Flujo de observaciones (detalle de protocolo)
+
+- Un protocolo `*_OBSERVED` abre con `PendingObservationPanel`: observaciones agrupadas por tipo (`ObservationList`), comité, fecha, autor (solo en la vista admin) y el botón "Subsanar observación" (única entrada a la corrección). El historial (`ProtocolReviewTimeline`) va justo debajo y marca esa entrada como pendiente en vez de repetir el texto. Las observaciones de dictámenes antiguos (sin tipo) se muestran como "General".
+- `ProtocolReviewDialog`: el resultado se elige con `RadioCardGroup` (cada opción explica su consecuencia; "Finalizar" aparece deshabilitado con su motivo cuando falta documentación ética registrada). Las observaciones son una lista repetible de tipo + texto (`useFieldArray`; OBSERVED exige al menos una completa, las filas vacías se descartan, una fila a medias marca error por campo con `setError`). El CIEI que finaliza solo establece el nivel de riesgo y ve en solo lectura la documentación registrada al crear. El pago ya no se verifica aquí. El error del servidor va en `FormAlert`.
+- `ProtocolCorrectDialog` muestra las observaciones y habilita, además de título y lugar de ejecución, la sección de pago (si no está exonerado y hay observaciones ADMINISTRATIVE o sin tipo) y la de documentación ética (observaciones ETHICS_CONSTANCE, INFORMED_CONSENT o sin tipo); "Mostrar todos los campos corregibles" abre ambas. Un campo vacío de pago o departamento se envía como `null` para limpiarlo.
+- Etiquetas de comité, resultado y tipo de observación: `pages/protocols/protocol-review-labels.ts`.

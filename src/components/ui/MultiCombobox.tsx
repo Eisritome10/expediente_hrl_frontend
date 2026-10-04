@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { cn } from '@/lib/cn'
 import type { ComboboxOption } from '@/components/ui/Combobox'
+export type { ComboboxOption }
 
 function normalize(value: string) {
   return value
@@ -67,7 +68,7 @@ export function MultiCombobox({
       <div
         onClick={() => !disabled && setOpen(true)}
         className={cn(
-          'flex min-h-[42px] w-full flex-wrap items-center gap-1.5 rounded-lg border border-border bg-white px-2.5 py-2 text-sm transition focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/40',
+          'flex min-h-[42px] w-full flex-wrap items-center gap-1.5 rounded-lg border border-border-strong bg-white px-2.5 py-2 text-sm transition focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/40',
           disabled ? 'cursor-not-allowed bg-surface-muted opacity-70' : 'cursor-pointer hover:border-brand-300',
         )}
       >
@@ -125,7 +126,7 @@ export function MultiCombobox({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar..."
-              className="w-full rounded-lg border border-border bg-white py-2.5 pr-3 pl-9 text-sm text-text placeholder:text-text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+              className="w-full rounded-lg border border-border-strong bg-white py-2.5 pr-3 pl-9 text-sm text-text placeholder:text-placeholder focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
             />
           </div>
 

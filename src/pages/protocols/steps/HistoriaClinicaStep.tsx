@@ -12,7 +12,6 @@ export function HistoriaClinicaStep() {
   } = useFormContext<ProtocolFormValues>()
 
   const requiereRevisionHc = watch('requiereRevisionHc')
-  const certificadoBuenasPracticas = watch('certificadoBuenasPracticas')
 
   return (
     <div className="flex flex-col gap-5">
@@ -45,7 +44,13 @@ export function HistoriaClinicaStep() {
             </Select>
           </FormField>
 
-          <FormField label="N° de comprobante" htmlFor="nroComprobanteHc" error={errors.nroComprobanteHc?.message} required>
+          <FormField
+            label="N° de comprobante"
+            htmlFor="nroComprobanteHc"
+            hint="Serie y correlativo, p. ej. B001-00001234 o F001-00001234."
+            error={errors.nroComprobanteHc?.message}
+            required
+          >
             <Input
               id="nroComprobanteHc"
               placeholder="B001-000123"
@@ -55,12 +60,6 @@ export function HistoriaClinicaStep() {
           </FormField>
         </div>
       )}
-
-      <Switch
-        checked={certificadoBuenasPracticas}
-        onChange={(checked) => setValue('certificadoBuenasPracticas', checked, { shouldValidate: true })}
-        label="Cuenta con certificado de buenas prácticas"
-      />
     </div>
   )
 }

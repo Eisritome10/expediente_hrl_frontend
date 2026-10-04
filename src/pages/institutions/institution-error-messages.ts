@@ -5,6 +5,8 @@ export function getInstitutionErrorMessage(error: unknown): string {
     switch (error.body?.errorCode) {
       case 'INSTITUTION_NAME_ALREADY_EXISTS':
         return 'Ya existe una institución registrada con ese nombre.'
+      case 'INSTITUTION_HAS_FACULTIES':
+        return 'La universidad todavía tiene facultades. Elimínalas antes de cambiarle el tipo.'
       case 'INSTITUTION_NOT_FOUND':
         return 'La institución ya no existe. Actualiza la lista e intenta nuevamente.'
       default:

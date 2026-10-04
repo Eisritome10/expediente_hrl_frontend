@@ -32,6 +32,7 @@ export function useCreateResearcher() {
     mutationFn: (payload: CreateResearcherInput) => createResearcher(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
       toast.success('Investigador creado')
     },
   })
@@ -44,6 +45,7 @@ export function useUpdateResearcher() {
       updateResearcher(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
       toast.success('Investigador actualizado')
     },
   })
@@ -55,6 +57,7 @@ export function useDeleteResearcher() {
     mutationFn: (id: string) => deleteResearcher(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['researchers'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
       toast.success('Investigador eliminado')
     },
     onError: (error) => toast.error(getResearcherErrorMessage(error)),

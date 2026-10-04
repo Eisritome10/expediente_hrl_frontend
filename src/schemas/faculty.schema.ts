@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const facultyFormSchema = z.object({
+  institutionId: z.string().min(1, 'Selecciona la universidad.'),
   name: z
     .string()
     .min(1, 'Ingresa el nombre de la facultad.')
