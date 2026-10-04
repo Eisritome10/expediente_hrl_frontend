@@ -1,4 +1,6 @@
-export type UserRole = 'ADMIN' | 'NURSE' | 'DOCTOR' | 'STATISTICIAN'
+export type UserRole = 'ADMIN' | 'RESEARCHER'
+
+export type UserStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface SessionUser {
   id: string

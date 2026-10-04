@@ -9,11 +9,12 @@ import { SearchInput } from '@/components/ui/SearchInput'
 import { Table, TableBody, TableEmptyState, TableHead, TableRow, TableSkeletonRows, TableTd, TableTh } from '@/components/ui/Table'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { useDeleteInstitution, useInstitutionsList } from '@/hooks/useInstitutions'
+import { INSTITUTION_TYPE_LABELS } from '@/pages/institutions/institution-types'
 import { InstitutionFormDialog } from '@/pages/institutions/InstitutionFormDialog'
 import { matchesInstitutionSearch } from '@/pages/institutions/institution-search'
 import type { Institution } from '@/types/entities'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
 const SEARCH_FETCH_LIMIT = 100
 
 export function InstitutionsListPage() {
@@ -110,11 +111,9 @@ export function InstitutionsListPage() {
                     <TableTd>{institution.name}</TableTd>
                     <TableTd className="text-text-muted">{institution.abbreviation ?? '-'}</TableTd>
                     <TableTd>
-                      {institution.esUniversidad ? (
-                        <Badge tone="brand">Universidad</Badge>
-                      ) : (
-                        <Badge tone="neutral">Institución</Badge>
-                      )}
+                      <Badge tone={institution.type === 'UNIVERSITY' ? 'brand' : institution.type === 'HOSPITAL' ? 'info' : 'neutral'}>
+                        {INSTITUTION_TYPE_LABELS[institution.type]}
+                      </Badge>
                     </TableTd>
                     <TableTd>
                       <div className="flex justify-end gap-1.5">

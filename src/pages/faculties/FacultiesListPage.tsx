@@ -12,7 +12,7 @@ import { FacultyFormDialog } from '@/pages/faculties/FacultyFormDialog'
 import { matchesFacultySearch } from '@/pages/faculties/faculty-search'
 import type { Faculty } from '@/types/entities'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
 const SEARCH_FETCH_LIMIT = 100
 
 export function FacultiesListPage() {
@@ -70,7 +70,7 @@ export function FacultiesListPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-semibold text-text">Facultades</h1>
-          <p className="text-sm text-text-muted">Catálogo de facultades registradas en el sistema.</p>
+          <p className="text-sm text-text-muted">Facultades de cada universidad. Cada universidad tiene las suyas.</p>
         </div>
         <Button onClick={openCreateDialog}>
           <PlusIcon size={16} />
@@ -82,7 +82,7 @@ export function FacultiesListPage() {
         value={searchInput}
         onChange={(event) => handleSearchChange(event.target.value)}
         onClear={() => handleSearchChange('')}
-        placeholder="Buscar por nombre..."
+        placeholder="Buscar por facultad o universidad..."
         aria-label="Buscar facultad"
       />
 
@@ -96,15 +96,17 @@ export function FacultiesListPage() {
           <Table>
             <TableHead>
               <TableTh>Nombre</TableTh>
+              <TableTh>Universidad</TableTh>
               <TableTh className="text-right">Acciones</TableTh>
             </TableHead>
             <TableBody>
               {isPending ? (
-                <TableSkeletonRows rows={PAGE_SIZE} columns={2} />
+                <TableSkeletonRows rows={PAGE_SIZE} columns={3} />
               ) : visibleFaculties.length > 0 ? (
                 visibleFaculties.map((faculty) => (
                   <TableRow key={faculty.id}>
                     <TableTd>{faculty.name}</TableTd>
+                    <TableTd className="text-text-muted">{faculty.institutionName ?? 'Sin universidad (histórica)'}</TableTd>
                     <TableTd>
                       <div className="flex justify-end gap-1.5">
                         <IconButton onClick={() => openEditDialog(faculty)} aria-label={`Editar ${faculty.name}`}>
@@ -122,10 +124,10 @@ export function FacultiesListPage() {
                   </TableRow>
                 ))
               ) : isSearching ? (
-                <TableEmptyState colSpan={2} message="No se encontraron facultades para esa búsqueda." />
+                <TableEmptyState colSpan={3} message="No se encontraron facultades para esa búsqueda." />
               ) : (
                 <TableEmptyState
-                  colSpan={2}
+                  colSpan={3}
                   message="Aún no hay facultades registradas."
                   action={
                     <Button variant="secondary" onClick={openCreateDialog}>

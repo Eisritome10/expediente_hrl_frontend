@@ -24,7 +24,11 @@ export function Stepper({
   const isEditing = currentIndex < reachedIndex
 
   return (
-    <ol className="flex items-center">
+    <div className="flex flex-col gap-3">
+      <p className="text-sm font-medium text-text sm:hidden" aria-hidden>
+        Paso {currentIndex + 1} de {steps.length}: <span className="text-text-muted">{steps[currentIndex]?.label}</span>
+      </p>
+      <ol className="flex items-center" aria-label="Pasos del registro">
       {steps.map((step, index) => {
         const isCurrent = index === currentIndex
         const isReached = index <= reachedIndex
@@ -62,7 +66,7 @@ export function Stepper({
         const isLineEditing = isEditing && (index === currentIndex || index === currentIndex - 1)
 
         return (
-          <li key={step.id} className={cn('flex items-center', !isLast && 'flex-1')}>
+          <li key={step.id} aria-current={isCurrent ? 'step' : undefined} className={cn('flex items-center', !isLast && 'flex-1')}>
             {isClickable ? (
               <button
                 type="button"
@@ -90,6 +94,7 @@ export function Stepper({
           </li>
         )
       })}
-    </ol>
+      </ol>
+    </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { WarningCircleIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input, FormField } from '@/components/ui/Input'
@@ -9,6 +8,7 @@ import { useCreateModality, useUpdateModality } from '@/hooks/useModalities'
 import { modalityFormSchema, type ModalityFormValues } from '@/schemas/modality.schema'
 import { getModalityErrorMessage } from '@/pages/modalities/modality-error-messages'
 import type { Modality } from '@/types/entities'
+import { FormAlert } from '@/components/ui/FormAlert'
 
 export function ModalityFormDialog({
   open,
@@ -85,10 +85,7 @@ function ModalityFormFields({ modality, onClose }: { modality: Modality | null; 
       </FormField>
 
       {formError && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
-          <WarningCircleIcon size={18} className="shrink-0" />
-          {formError}
-        </div>
+        <FormAlert>{formError}</FormAlert>
       )}
 
       <div className="mt-1 flex justify-end gap-2 border-t border-border pt-4">

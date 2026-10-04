@@ -7,11 +7,11 @@ interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, '
 }
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function SearchInput(
-  { className, value, onClear, ...props },
+  { className = 'w-full max-w-sm', value, onClear, ...props },
   ref,
 ) {
   return (
-    <div className={cn('relative w-full max-w-sm', className)}>
+    <div className={cn('relative', className)}>
       <MagnifyingGlassIcon
         size={16}
         className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted"
@@ -20,7 +20,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
         ref={ref}
         type="text"
         value={value}
-        className="w-full rounded-lg border border-border bg-white py-2.5 pr-9 pl-9 text-sm text-text placeholder:text-text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+        className="w-full rounded-lg border border-border-strong bg-white py-2.5 pr-9 pl-9 text-sm text-text placeholder:text-placeholder focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
         {...props}
       />
       {onClear && typeof value === 'string' && value.length > 0 && (

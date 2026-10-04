@@ -6,6 +6,7 @@ import { MultiCombobox, type ComboboxOption } from '@/components/ui/MultiCombobo
 import { Switch } from '@/components/ui/Switch'
 import { useDestinationsList } from '@/hooks/useDestinations'
 import { useInstitutionsList } from '@/hooks/useInstitutions'
+import { useStudyDesignsList } from '@/hooks/useStudyDesigns'
 import { normalizeAlnum, type ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
@@ -23,6 +24,7 @@ export function ExpedienteStep() {
 
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
   const destinations = useDestinationsList({ page: 1, limit: CATALOG_LIMIT })
+  const studyDesigns = useStudyDesignsList({ page: 1, limit: CATALOG_LIMIT })
 
   const hospitalRegional = institutions.data?.data.find((institution) =>
     normalizeAlnum(institution.name).includes('hospitalregional'),
@@ -31,6 +33,11 @@ export function ExpedienteStep() {
   const destinationOptions: ComboboxOption[] = (destinations.data?.data ?? []).map((destination) => ({
     id: destination.id,
     label: destination.description,
+  }))
+
+  const studyDesignOptions: ComboboxOption[] = (studyDesigns.data?.data ?? []).map((studyDesign) => ({
+    id: studyDesign.id,
+    label: studyDesign.name,
   }))
 
   useEffect(() => {
@@ -54,11 +61,19 @@ export function ExpedienteStep() {
       <p className="text-sm text-text-muted">Datos generales del expediente que se está recibiendo.</p>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField label="N° de expediente" htmlFor="nroExpediente" error={errors.nroExpediente?.message} required>
+        <FormField
+          label="N° de expediente"
+          htmlFor="nroExpediente"
+          hint="Solo números: hasta 4 dígitos, una barra y hasta 6 dígitos."
+          error={errors.nroExpediente?.message}
+          required
+        >
           <Input
             id="nroExpediente"
             autoFocus
-            placeholder="542/2026"
+            inputMode="numeric"
+            maxLength={11}
+            placeholder="1234/123456"
             error={errors.nroExpediente?.message}
             {...register('nroExpediente')}
           />
@@ -73,12 +88,20 @@ export function ExpedienteStep() {
         <Textarea id="titulo" placeholder="Título completo del proyecto de investigación" error={errors.titulo?.message} {...register('titulo')} />
       </FormField>
 
-      <FormField label="Diseño del estudio" htmlFor="disenoEstudio" error={errors.disenoEstudio?.message} required>
-        <Input
-          id="disenoEstudio"
-          placeholder="Descriptivo transversal"
-          error={errors.disenoEstudio?.message}
-          {...register('disenoEstudio')}
+      <FormField label="Diseño del estudio" htmlFor="studyDesignIds" error={errors.studyDesignIds?.message} required>
+        <Controller
+          name="studyDesignIds"
+          control={control}
+          render={({ field }) => (
+            <MultiCombobox
+              options={studyDesignOptions}
+              value={field.value}
+              onChange={field.onChange}
+              loading={studyDesigns.isPending}
+              placeholder="Agregar diseño de estudio"
+              label="diseños de estudio"
+            />
+          )}
         />
       </FormField>
 

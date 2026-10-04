@@ -12,7 +12,7 @@ import { ModalityFormDialog } from '@/pages/modalities/ModalityFormDialog'
 import { matchesModalitySearch } from '@/pages/modalities/modality-search'
 import type { Modality } from '@/types/entities'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
 const SEARCH_FETCH_LIMIT = 100
 
 export function ModalitiesListPage() {

@@ -2,10 +2,11 @@ import { apiFetch } from '@/api/client'
 import type { Paginated } from '@/types/common'
 import type { CreateFacultyInput, Faculty, UpdateFacultyInput } from '@/types/entities'
 
-export function listFaculties(params: { page?: number; limit?: number } = {}) {
+export function listFaculties(params: { page?: number; limit?: number; institutionId?: string } = {}) {
   const query = new URLSearchParams()
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
+  if (params.institutionId) query.set('institutionId', params.institutionId)
   const qs = query.toString()
   return apiFetch<Paginated<Faculty>>(`/faculties${qs ? `?${qs}` : ''}`)
 }

@@ -1,24 +1,26 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { WarningCircleIcon } from '@phosphor-icons/react'
 import { useAuth } from '@/hooks/useAuth'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Input, FormField } from '@/components/ui/Input'
+import { Input, PasswordInput, FormField } from '@/components/ui/Input'
+import { homePathForRole } from '@/lib/role-home'
 import { ApiError } from '@/types/common'
+import { getAuthErrorMessage } from '@/pages/auth/auth-error-messages'
+import { FormAlert } from '@/components/ui/FormAlert'
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Ingresa tu usuario.'),
+  identifier: z.string().min(1, 'Ingresa tu usuario, DNI o correo.'),
   password: z.string().min(1, 'Ingresa tu contraseña.'),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [formError, setFormError] = useState<string | null>(null)
@@ -29,15 +31,21 @@ export function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) })
 
+  if (user) return <Navigate to={homePathForRole(user.role)} replace />
+
   const onSubmit = async (values: LoginFormValues) => {
     setFormError(null)
     try {
-      await login(values.username, values.password)
-      const redirectTo = (location.state as { from?: string } | null)?.from ?? '/'
+      const sessionUser = await login(values.identifier, values.password)
+      const from = (location.state as { from?: string } | null)?.from
+      // Un investigador nunca aterriza en el panel administrativo, aunque haya llegado desde una ruta de admin.
+      const redirectTo = sessionUser.role === 'RESEARCHER' ? homePathForRole('RESEARCHER') : (from ?? '/')
       navigate(redirectTo, { replace: true })
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        setFormError('Usuario o contraseña incorrectos.')
+      if (error instanceof ApiError) {
+        setFormError(getAuthErrorMessage(error))
+      } else if (error instanceof Error && error.message) {
+        setFormError(error.message)
       } else {
         setFormError('No se pudo conectar con el servidor. Intenta nuevamente.')
       }
@@ -50,35 +58,35 @@ export function LoginPage() {
       <p className="mb-5 text-sm text-text-muted">Ingresa tus credenciales para continuar.</p>
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FormField label="Usuario" htmlFor="username" error={errors.username?.message} required>
+        <FormField
+          label="Usuario, DNI o correo"
+          htmlFor="identifier"
+          hint="Los investigadores ingresan con su DNI."
+          error={errors.identifier?.message}
+          required
+        >
           <Input
-            id="username"
+            id="identifier"
             autoComplete="username"
             autoFocus
-            error={errors.username?.message}
-            {...register('username')}
+            error={errors.identifier?.message}
+            {...register('identifier')}
           />
         </FormField>
 
         <FormField label="Contraseña" htmlFor="password" error={errors.password?.message} required>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             error={errors.password?.message}
             {...register('password')}
           />
         </FormField>
 
-        {formError && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
-            <WarningCircleIcon size={18} className="shrink-0" />
-            {formError}
-          </div>
-        )}
+        {formError && <FormAlert>{formError}</FormAlert>}
 
-        <Button type="submit" loading={isSubmitting} className="mt-1 w-full">
-          Ingresar
+        <Button type="submit" loading={isSubmitting} className="mt-1 w-full py-3">
+          {isSubmitting ? 'Ingresando...' : 'Ingresar'}
         </Button>
       </form>
     </Card>

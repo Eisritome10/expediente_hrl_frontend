@@ -2,7 +2,7 @@ import { createContext, use, useCallback, useMemo, useState, type ReactNode } fr
 import { login as loginRequest } from '@/api/auth'
 import { tokenStorage } from '@/api/token-storage'
 import { ApiError } from '@/types/common'
-import type { SessionUser } from '@/types/auth'
+import type { AuthenticatedSession, SessionUser } from '@/types/auth'
 
 const SESSION_USER_KEY = 'hrl.sessionUser'
 
@@ -19,7 +19,7 @@ function readStoredUser(): SessionUser | null {
 interface AuthContextValue {
   user: SessionUser | null
   isAuthenticated: boolean
-  login: (username: string, password: string) => Promise<void>
+  login: (identifier: string, password: string) => Promise<SessionUser>
   logout: () => void
 }
 
@@ -28,16 +28,19 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(() => readStoredUser())
 
-  const login = useCallback(async (username: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
+    let session: AuthenticatedSession
     try {
-      const session = await loginRequest(username, password)
-      tokenStorage.setTokens(session.accessToken, session.refreshToken)
-      localStorage.setItem(SESSION_USER_KEY, JSON.stringify(session.user))
-      setUser(session.user)
+      session = await loginRequest(identifier, password)
     } catch (error) {
       if (error instanceof ApiError) throw error
       throw new ApiError(0, { message: 'No se pudo conectar con el servidor.', statusCode: 0 })
     }
+
+    tokenStorage.setTokens(session.accessToken, session.refreshToken)
+    localStorage.setItem(SESSION_USER_KEY, JSON.stringify(session.user))
+    setUser(session.user)
+    return session.user
   }, [])
 
   const logout = useCallback(() => {

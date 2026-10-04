@@ -19,11 +19,15 @@ export function InstitucionStep() {
   const institucionId = useWatch<ProtocolFormValues, 'institucionId'>({ control, name: 'institucionId' })
 
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
-  const faculties = useFacultiesList({ page: 1, limit: CATALOG_LIMIT })
   const modalities = useModalitiesList({ page: 1, limit: CATALOG_LIMIT })
 
   const selectedInstitution = institutions.data?.data.find((institution) => institution.id === institucionId)
-  const facultadEnabled = Boolean(selectedInstitution?.esUniversidad)
+  const facultadEnabled = selectedInstitution?.type === 'UNIVERSITY'
+  // Cada universidad tiene sus propias facultades: solo se cargan las de la universidad elegida.
+  const faculties = useFacultiesList(
+    { page: 1, limit: CATALOG_LIMIT, institutionId: institucionId || undefined },
+    { enabled: facultadEnabled },
+  )
 
   const institutionOptions: ComboboxOption[] = (institutions.data?.data ?? []).map((institution) => ({
     id: institution.id,
@@ -53,8 +57,8 @@ export function InstitucionStep() {
                 value={field.value}
                 onChange={(id) => {
                   field.onChange(id)
-                  const institution = institutions.data?.data.find((item) => item.id === id)
-                  if (!institution?.esUniversidad) setValue('facultadId', '', { shouldValidate: true })
+                  // La facultad elegida pertenecía a otra universidad (o a ninguna): se vuelve a elegir.
+                  setValue('facultadId', '', { shouldValidate: true })
                 }}
                 loading={institutions.isPending}
                 placeholder="Selecciona la institución (opcional)"
@@ -64,7 +68,7 @@ export function InstitucionStep() {
           />
           {selectedInstitution && !facultadEnabled && (
             <p className="mt-1.5 text-xs text-text-muted">
-              Esta institución no es universidad, así que no aplica seleccionar facultad.
+              Solo las universidades tienen facultades, así que no aplica seleccionar una.
             </p>
           )}
         </FormField>
@@ -80,7 +84,11 @@ export function InstitucionStep() {
                   value={field.value}
                   onChange={field.onChange}
                   loading={faculties.isPending}
-                  placeholder="Selecciona la facultad (opcional)"
+                  placeholder={
+                    facultyOptions.length === 0 && !faculties.isPending
+                      ? 'Esta universidad aún no tiene facultades'
+                      : 'Selecciona la facultad (opcional)'
+                  }
                   label="facultad"
                 />
               )}
@@ -97,11 +105,7 @@ export function InstitucionStep() {
             <Combobox
               options={modalityOptions}
               value={field.value}
-              onChange={(id) => {
-                field.onChange(id)
-                const modality = modalities.data?.data.find((item) => item.id === id)
-                if (modality) setValue('pagoRevision', modality.fee, { shouldValidate: true })
-              }}
+              onChange={field.onChange}
               loading={modalities.isPending}
               error={errors.modalidadId?.message}
               placeholder="Selecciona la modalidad"
