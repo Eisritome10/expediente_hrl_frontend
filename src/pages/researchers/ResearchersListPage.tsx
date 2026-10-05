@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useQuerySearch } from '@/hooks/useQuerySearch'
 import { PencilSimpleIcon, PlusIcon, TrashIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -18,7 +19,7 @@ const SEARCH_FETCH_LIMIT = 100
 export function ResearchersListPage() {
   const [page, setPage] = useState(1)
   const [searchPage, setSearchPage] = useState(1)
-  const [searchInput, setSearchInput] = useState('')
+  const [searchInput, setSearchInput] = useQuerySearch()
   const [formOpen, setFormOpen] = useState(false)
   const [editingResearcher, setEditingResearcher] = useState<Researcher | null>(null)
   const [deletingResearcher, setDeletingResearcher] = useState<Researcher | null>(null)
