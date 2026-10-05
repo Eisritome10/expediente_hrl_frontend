@@ -4,7 +4,6 @@ import {
   ClipboardTextIcon,
   UsersIcon,
   BuildingsIcon,
-  GraduationCapIcon,
   PaperPlaneTiltIcon,
   FlaskIcon,
   MicroscopeIcon,
@@ -45,9 +44,8 @@ export const NAV_HOME: NavDestination = { label: 'Inicio', to: '/', icon: Square
 export const NAV_DESTINATIONS: NavDestination[] = [
   { label: 'Protocolos', to: '/protocolos', icon: ClipboardTextIcon, group: 'daily', keywords: ['expediente', 'dictamen', 'revision'] },
   { label: 'Investigadores', to: '/investigadores', icon: UsersIcon, group: 'people', keywords: ['dni', 'coinvestigador', 'asesor'] },
-  { label: 'Instituciones', to: '/instituciones', icon: BuildingsIcon, group: 'people', keywords: ['universidad', 'hospital', 'facultad'] },
+  { label: 'Instituciones', to: '/instituciones', icon: BuildingsIcon, group: 'people', keywords: ['universidad', 'hospital', 'facultad', 'facultades'] },
   { label: 'Usuarios', to: '/usuarios', icon: UserGearIcon, group: 'people', keywords: ['cuentas', 'roles', 'acceso'] },
-  { label: 'Facultades', to: '/facultades', icon: GraduationCapIcon, group: 'catalogs', keywords: ['universidad'] },
   { label: 'Destinos', to: '/destinos', icon: PaperPlaneTiltIcon, group: 'catalogs' },
   { label: 'Modalidades', to: '/modalidades', icon: FlaskIcon, group: 'catalogs', keywords: ['pregrado', 'posgrado', 'tarifa'] },
   { label: 'Diseños de estudio', to: '/disenos-estudio', icon: MicroscopeIcon, group: 'catalogs', keywords: ['metodologia'] },

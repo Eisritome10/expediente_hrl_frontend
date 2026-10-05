@@ -9,6 +9,14 @@ export function getInstitutionErrorMessage(error: unknown): string {
         return 'La universidad todavía tiene facultades. Elimínalas antes de cambiarle el tipo.'
       case 'INSTITUTION_NOT_FOUND':
         return 'La institución ya no existe. Actualiza la lista e intenta nuevamente.'
+      case 'FACULTY_NAME_ALREADY_EXISTS':
+        return 'Esa universidad ya tiene una facultad con ese nombre.'
+      case 'FACULTY_INSTITUTION_NOT_UNIVERSITY':
+        return 'Solo las universidades tienen facultades.'
+      case 'FACULTY_NOT_FOUND':
+        return 'La facultad ya no existe. Actualiza la lista e intenta nuevamente.'
+      case 'FACULTY_IN_USE_BY_PROTOCOL':
+        return 'No se puede eliminar la facultad porque la usa al menos un protocolo.'
       default:
         return error.message || 'No se pudo completar la operación.'
     }
