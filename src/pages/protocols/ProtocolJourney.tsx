@@ -36,7 +36,7 @@ export function ProtocolJourney({ protocol }: { protocol: ResearcherProtocolDeta
   const stepNumber = journey.currentIndex + 1
 
   return (
-    <section aria-labelledby="journey-title" className="rounded-2xl border border-border bg-white p-5 shadow-sm sm:p-6">
+    <section aria-labelledby="journey-title" className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="journey-title" className="text-base font-semibold text-text">
           Seguimiento de tu protocolo
@@ -124,7 +124,7 @@ function JourneyStep({
             aria-hidden
             style={{ transitionDelay: `${index * 220}ms` }}
             className={cn(
-              'absolute top-12 bottom-1 left-[19px] w-0.5 origin-top rounded-full bg-brand-600 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:top-[19px] md:right-2 md:bottom-auto md:left-12 md:h-0.5 md:w-auto md:origin-left',
+              'absolute top-12 bottom-1 left-[19px] w-0.5 origin-top rounded-full bg-action transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:top-[19px] md:right-2 md:bottom-auto md:left-12 md:h-0.5 md:w-auto md:origin-left',
               fillsNext && ready ? 'scale-y-100 md:scale-x-100' : 'scale-y-0 md:scale-x-0 md:scale-y-100',
             )}
           />
@@ -144,10 +144,10 @@ function JourneyStep({
         <span
           className={cn(
             'relative flex size-10 items-center justify-center rounded-full border-2 transition-colors',
-            state === 'done' && 'border-brand-600 bg-brand-600 text-white',
-            state === 'current' && !attention && 'border-brand-600 bg-white text-brand-700',
-            state === 'current' && attention && 'border-amber-500 bg-white text-amber-700',
-            state === 'upcoming' && 'border-border-strong/50 bg-white text-text-muted',
+            state === 'done' && 'border-brand-600 bg-action text-white',
+            state === 'current' && !attention && 'border-brand-600 bg-surface text-brand-700',
+            state === 'current' && attention && 'border-amber-500 bg-surface text-amber-700',
+            state === 'upcoming' && 'border-border-strong/50 bg-surface text-text-muted',
           )}
         >
           {isConcludedStage ? (

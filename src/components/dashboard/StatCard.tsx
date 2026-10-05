@@ -16,7 +16,7 @@ interface StatCardProps {
 
 const toneClasses = {
   brand: 'bg-brand-50 text-brand-700',
-  neutral: 'bg-black/5 text-text-muted',
+  neutral: 'bg-wash text-text-muted',
   warning: 'bg-amber-50 text-amber-700',
 }
 

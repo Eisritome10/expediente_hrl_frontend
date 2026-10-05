@@ -120,7 +120,7 @@ export function UniversityFacultiesEditor({
       ) : (
         <ul className="flex max-h-48 flex-col gap-1.5 overflow-y-auto">
           {drafts.map((draft, index) => (
-            <li key={`draft-${draft}-${index}`} className="flex items-center justify-between gap-2 rounded-md bg-white px-3 py-1.5 text-sm">
+            <li key={`draft-${draft}-${index}`} className="flex items-center justify-between gap-2 rounded-md bg-surface px-3 py-1.5 text-sm">
               <span>{draft}</span>
               <button
                 type="button"
@@ -133,7 +133,7 @@ export function UniversityFacultiesEditor({
             </li>
           ))}
           {persisted.map((faculty) => (
-            <li key={faculty.id} className="flex items-center justify-between gap-2 rounded-md bg-white px-3 py-1.5 text-sm">
+            <li key={faculty.id} className="flex items-center justify-between gap-2 rounded-md bg-surface px-3 py-1.5 text-sm">
               <span>{faculty.name}</span>
               {confirmingId === faculty.id ? (
                 <span className="flex items-center gap-1.5">
@@ -143,7 +143,7 @@ export function UniversityFacultiesEditor({
                   </Button>
                   <Button
                     type="button"
-                    className="bg-red-600 px-2 py-1 text-xs hover:bg-red-700"
+                    className="bg-danger px-2 py-1 text-xs hover:bg-danger-hover"
                     loading={deleteFaculty.isPending}
                     onClick={() => void removePersisted(faculty.id)}
                   >

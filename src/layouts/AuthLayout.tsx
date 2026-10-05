@@ -1,9 +1,11 @@
 import { Outlet } from 'react-router-dom'
 import { HospitalIcon } from '@phosphor-icons/react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 export function AuthLayout() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-brand-700 via-brand-600 to-brand-300 p-4">
+    <div className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-chrome-from via-chrome-mid to-chrome-end p-4">
+      <ThemeToggle tone="onDark" className="absolute top-3 right-3" />
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center gap-2 text-white">
           <div className="flex size-12 items-center justify-center rounded-full bg-white/15">

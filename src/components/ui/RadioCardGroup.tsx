@@ -36,7 +36,7 @@ export function RadioCardGroup<T extends string>({
             key={option.value}
             className={cn(
               'flex items-start gap-3 rounded-lg border px-3.5 py-3 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-brand-500/40',
-              checked ? 'border-brand-600 bg-brand-50/60' : 'border-border-strong bg-white',
+              checked ? 'border-brand-600 bg-brand-50/60' : 'border-border-strong bg-surface',
               option.disabled ? 'cursor-not-allowed bg-surface-muted' : 'cursor-pointer hover:border-brand-500',
             )}
           >

@@ -116,7 +116,7 @@ export function MyProtocolDetailPage() {
 
 function NoticePanel({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border-strong bg-white px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-14 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">{icon}</span>
       <h2 className="text-base font-semibold text-text">{title}</h2>
       <p className="max-w-sm text-sm text-text-muted">{body}</p>

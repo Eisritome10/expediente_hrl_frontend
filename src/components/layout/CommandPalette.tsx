@@ -217,7 +217,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
           }}
           onKeyDown={onKeyDown}
           placeholder="Expediente, título, nombre, DNI o sección"
-          className="w-full rounded-lg border border-border-strong bg-white py-3 pr-3.5 pl-10 text-sm text-text placeholder:text-placeholder focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
+          className="w-full rounded-lg border border-border-strong bg-surface py-3 pr-3.5 pl-10 text-sm text-text placeholder:text-placeholder focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 focus:outline-none"
         />
       </div>
 

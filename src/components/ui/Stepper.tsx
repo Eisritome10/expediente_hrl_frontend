@@ -41,8 +41,8 @@ export function Stepper({
           <span
             className={cn(
               'flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-200',
-              (isDone || isCurrent) && !isEditingHere && 'bg-brand-600 text-white',
-              isCurrent && !isEditingHere && 'shadow-sm shadow-brand-900/25',
+              (isDone || isCurrent) && !isEditingHere && 'bg-action text-white',
+              isCurrent && !isEditingHere && 'shadow-sm shadow-ink/25',
               isEditingHere && 'bg-amber-500 text-white shadow-sm shadow-amber-900/30',
               !isReached && !isCurrent && 'bg-surface-muted text-text-muted',
             )}
@@ -87,7 +87,7 @@ export function Stepper({
               <div
                 className={cn(
                   'mx-3 h-px flex-1 transition-colors duration-200',
-                  isLineEditing ? 'bg-amber-500' : index < reachedIndex ? 'bg-brand-600' : 'bg-border',
+                  isLineEditing ? 'bg-amber-500' : index < reachedIndex ? 'bg-action' : 'bg-border',
                 )}
               />
             )}

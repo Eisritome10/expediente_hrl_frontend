@@ -142,7 +142,7 @@ function AmendmentPicker() {
           ) : results.length === 0 ? (
             <p className="text-sm text-text-muted">No se encontraron protocolos finalizados con ese número.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border bg-white">
+            <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
               {results.map((protocol) => (
                 <li key={protocol.id}>
                   <button

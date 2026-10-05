@@ -33,7 +33,7 @@ function useFieldA11y(id: string | undefined, error: string | undefined) {
 }
 
 const controlBase =
-  'w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-text transition-colors placeholder:text-placeholder focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-muted disabled:text-text-muted read-only:bg-surface-muted'
+  'w-full rounded-lg border bg-surface px-3.5 py-2.5 text-sm text-text transition-colors placeholder:text-placeholder focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-muted disabled:text-text-muted read-only:bg-surface-muted'
 
 // Estados excluyentes (no se suman): dos utilidades de color en el mismo class dejan el ganador al orden del CSS.
 const controlValid = 'border-border-strong hover:border-text-muted focus:border-brand-500 focus:ring-brand-500/30'

@@ -30,9 +30,9 @@ export function useCreateDestination() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateDestinationInput) => createDestination(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] })
-      toast.success('Destino creado')
+      toast.success('Destino creado', { description: created.description })
     },
   })
 }

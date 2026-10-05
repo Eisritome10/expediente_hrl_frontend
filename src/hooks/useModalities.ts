@@ -24,9 +24,9 @@ export function useCreateModality() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateModalityInput) => createModality(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['modalities'] })
-      toast.success('Modalidad creada')
+      toast.success('Modalidad creada', { description: created.name })
     },
   })
 }

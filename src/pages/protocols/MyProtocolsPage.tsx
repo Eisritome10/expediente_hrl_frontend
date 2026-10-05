@@ -143,7 +143,7 @@ export function MyProtocolsPage() {
           ) : (
             <>
               {/* Pantallas angostas: una fila apilada por protocolo en lugar de una tabla que desborda. */}
-              <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white md:hidden">
+              <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface md:hidden">
                 {isPending
                   ? Array.from({ length: 4 }).map((_, index) => (
                       <li key={index} className="flex flex-col gap-2 p-4">
@@ -242,7 +242,7 @@ export function MyProtocolsPage() {
 
 function NoticePanel({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border-strong bg-white px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-14 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">{icon}</span>
       <h2 className="text-base font-semibold text-text">{title}</h2>
       <p className="max-w-sm text-sm text-text-muted">{body}</p>

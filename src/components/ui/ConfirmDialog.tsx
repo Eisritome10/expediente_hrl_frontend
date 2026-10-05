@@ -36,7 +36,7 @@ export function ConfirmDialog({
             type="button"
             loading={loading}
             onClick={onConfirm}
-            className={tone === 'danger' ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-600/60' : undefined}
+            className={tone === 'danger' ? 'bg-danger hover:bg-danger-hover disabled:bg-danger/60' : undefined}
           >
             {confirmLabel}
           </Button>

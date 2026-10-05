@@ -30,10 +30,10 @@ export function useCreateResearcher() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateResearcherInput) => createResearcher(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['researchers'] })
       queryClient.invalidateQueries({ queryKey: ['users'] })
-      toast.success('Investigador creado')
+      toast.success('Investigador creado', { description: `${created.firstName} ${created.lastName}` })
     },
   })
 }

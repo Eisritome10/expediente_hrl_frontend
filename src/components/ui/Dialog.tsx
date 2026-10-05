@@ -45,7 +45,7 @@ export function Dialog({ open, onClose, title, children, footer, className }: Di
       aria-labelledby={titleId}
       className={cn(
         // `open:flex` (no `flex` suelto): el display del <dialog> cerrado debe seguir siendo none.
-        'm-auto w-full max-w-md rounded-2xl border border-border bg-white p-0 shadow-2xl shadow-brand-900/15 backdrop:bg-brand-900/30 backdrop:backdrop-blur-[2px] open:flex open:max-h-[calc(100dvh-2rem)] open:flex-col',
+        'm-auto w-full max-w-md rounded-2xl max-sm:mt-auto max-sm:mb-0 max-sm:max-w-full max-sm:rounded-b-none border border-border bg-surface p-0 shadow-2xl shadow-ink/15 backdrop:bg-ink/55 backdrop:backdrop-blur-[2px] open:flex open:max-h-[calc(100dvh-2rem)] max-sm:open:max-h-[92dvh] open:flex-col',
         className,
       )}
     >

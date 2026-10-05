@@ -30,9 +30,9 @@ export function useCreateStudyDesign() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateStudyDesignInput) => createStudyDesign(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['study-designs'] })
-      toast.success('Diseño de estudio creado')
+      toast.success('Diseño de estudio creado', { description: created.name })
     },
   })
 }
