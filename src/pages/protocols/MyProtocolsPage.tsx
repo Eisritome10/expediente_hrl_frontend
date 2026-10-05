@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { Table, TableBody, TableHead, TableRow, TableSkeletonRows, TableTd, TableTh } from '@/components/ui/Table'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { useMyProtocolsList } from '@/hooks/useProtocols'
-import { PROTOCOL_STATUSES, PROTOCOL_STATUS_CONFIG, RESEARCHER_STATUS_HINT } from '@/pages/protocols/protocol-status'
+import { RESEARCHER_STATUSES, RESEARCHER_STATUS_CONFIG, RESEARCHER_STATUS_HINT } from '@/pages/protocols/protocol-status'
 import { ProtocolStatusBadge } from '@/pages/protocols/ProtocolStatusBadge'
 import { ApiError } from '@/types/common'
 import type { ProtocolStatus, ProtocolSummary } from '@/types/entities'
@@ -81,7 +81,7 @@ export function MyProtocolsPage() {
         <NoticePanel
           icon={<LinkBreakIcon size={28} />}
           title="Tu cuenta aún no está vinculada a un investigador"
-          body="Comunícate con la OADI para que vinculen tu cuenta a tu registro de investigador."
+          body="Comunícate con la oficina de investigación para que vinculen tu cuenta a tu registro de investigador."
         />
       ) : isError ? (
         <div role="alert" className="flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -117,9 +117,9 @@ export function MyProtocolsPage() {
                 className="w-52"
               >
                 <option value="">Todos los estados</option>
-                {PROTOCOL_STATUSES.map((value) => (
+                {RESEARCHER_STATUSES.map((value) => (
                   <option key={value} value={value}>
-                    {PROTOCOL_STATUS_CONFIG[value].label}
+                    {RESEARCHER_STATUS_CONFIG[value].label}
                   </option>
                 ))}
               </Select>
@@ -137,7 +137,7 @@ export function MyProtocolsPage() {
               <NoticePanel
                 icon={<ClipboardTextIcon size={28} />}
                 title="Aún no participas en ningún protocolo"
-                body="Cuando la OADI te registre como parte de un protocolo, aparecerá en esta lista con su estado."
+                body="Cuando la oficina de investigación te registre como parte de un protocolo, aparecerá en esta lista con su estado."
               />
             )
           ) : (
@@ -169,7 +169,7 @@ export function MyProtocolsPage() {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-semibold text-text">{protocol.nroExpediente}</span>
-                          <ProtocolStatusBadge status={protocol.status} />
+                          <ProtocolStatusBadge status={protocol.status} audience="researcher" />
                         </div>
                         <p className="text-sm text-text">{protocol.titulo}</p>
                         <p className="text-xs text-text-muted">{RESEARCHER_STATUS_HINT[protocol.status]}</p>
@@ -216,7 +216,7 @@ export function MyProtocolsPage() {
                           </TableTd>
                           <TableTd className="max-w-56">
                             <div className="flex flex-col items-start gap-1">
-                              <ProtocolStatusBadge status={protocol.status} />
+                              <ProtocolStatusBadge status={protocol.status} audience="researcher" />
                               <span className="text-xs text-text-muted">{RESEARCHER_STATUS_HINT[protocol.status]}</span>
                             </div>
                           </TableTd>

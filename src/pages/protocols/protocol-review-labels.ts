@@ -1,8 +1,8 @@
 import type { Committee, ObservationType, ReviewOutcome } from '@/types/entities'
 
 export const COMMITTEE_NAMES: Record<Committee, string> = {
-  CIC: 'Comité de Investigación Clínica (CIC)',
-  CIEI: 'Comité de Ética en Investigación (CIEI)',
+  CIC: 'Comité de Investigación Clínica',
+  CIEI: 'Comité de Ética en Investigación',
 }
 
 export const OUTCOME_LABELS: Record<ReviewOutcome, { label: string; tone: 'warning' | 'success' | 'info' }> = {

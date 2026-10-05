@@ -7,8 +7,9 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { useMyProtocol } from '@/hooks/useProtocols'
 import { ProtocolStatusBadge } from '@/pages/protocols/ProtocolStatusBadge'
 import { PendingObservationPanel } from '@/pages/protocols/PendingObservationPanel'
+import { ProtocolJourney } from '@/pages/protocols/ProtocolJourney'
 import { ProtocolReviewTimeline } from '@/pages/protocols/ProtocolReviewTimeline'
-import { COMMITTEE_NAMES, formatReviewDate } from '@/pages/protocols/protocol-review-labels'
+import { formatReviewDate } from '@/pages/protocols/protocol-review-labels'
 import { RESEARCHER_STATUS_HINT } from '@/pages/protocols/protocol-status'
 import { ApiError } from '@/types/common'
 import type { Committee } from '@/types/entities'
@@ -31,17 +32,6 @@ export function MyProtocolDetailPage() {
   const isNotFound = error instanceof ApiError && error.status === 404
 
   const reviews = protocol?.reviews ?? []
-  const lastCicOutcome = reviews.find((review) => review.committee === 'CIC')?.outcome ?? null
-
-  // Comité que tiene el protocolo en este momento, según el estado y el último dictamen del CIC.
-  const currentCommittee: Committee | 'Concluido' =
-    protocol?.status === 'FINALIZED'
-      ? 'Concluido'
-      : protocol?.status === 'CIEI_OBSERVED' || protocol?.status === 'CIEI_CORRECTED' || lastCicOutcome === 'APPROVED'
-        ? 'CIEI'
-        : 'CIC'
-  const currentCommitteeLabel = currentCommittee === 'Concluido' ? 'Concluido' : COMMITTEE_NAMES[currentCommittee]
-
   const isObserved = protocol?.status === 'CIC_OBSERVED' || protocol?.status === 'CIEI_OBSERVED'
   const observingCommittee: Committee = protocol?.status === 'CIEI_OBSERVED' ? 'CIEI' : 'CIC'
   const pendingObservation =
@@ -56,7 +46,7 @@ export function MyProtocolDetailPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold text-text">{protocol ? protocol.nroExpediente : 'Protocolo'}</h1>
-            {protocol && <ProtocolStatusBadge status={protocol.status} />}
+            {protocol && <ProtocolStatusBadge status={protocol.status} audience="researcher" />}
           </div>
           {protocol && <p className="mt-1 text-sm text-text-muted">{RESEARCHER_STATUS_HINT[protocol.status]}</p>}
         </div>
@@ -66,7 +56,7 @@ export function MyProtocolDetailPage() {
         <NoticePanel
           icon={<LinkBreakIcon size={28} />}
           title="Tu cuenta aún no está vinculada a un investigador"
-          body="Comunícate con la OADI para que vinculen tu cuenta a tu registro de investigador."
+          body="Comunícate con la oficina de investigación para que vinculen tu cuenta a tu registro de investigador."
         />
       ) : isNotFound ? (
         <NoticePanel
@@ -87,13 +77,14 @@ export function MyProtocolDetailPage() {
         </Card>
       ) : (
         <>
+          <ProtocolJourney protocol={protocol} />
+
           {isObserved && <PendingObservationPanel observation={pendingObservation} />}
 
           <Card className="p-5">
             <h2 className="mb-1 text-sm font-semibold text-text">Datos del protocolo</h2>
             <dl className="divide-y divide-border">
               <Row label="Título" value={protocol.titulo} />
-              <Row label="Comité actual" value={currentCommitteeLabel} />
               {protocol.protocoloOriginal && (
                 <Row label="Enmienda de" value={`N° ${protocol.protocoloOriginal.nroExpediente}`} />
               )}
@@ -106,7 +97,7 @@ export function MyProtocolDetailPage() {
           </Card>
 
           <Card className="p-5">
-            <h2 className="mb-4 text-sm font-semibold text-text">Historial de dictámenes</h2>
+            <h2 className="mb-5 text-base font-semibold text-text">Historial del seguimiento</h2>
             {reviews.length > 0 || protocol.corrections.length > 0 ? (
               <ProtocolReviewTimeline
                 reviews={reviews}
@@ -114,7 +105,7 @@ export function MyProtocolDetailPage() {
                 pendingId={isObserved ? pendingObservation?.id : undefined}
               />
             ) : (
-              <p className="text-sm text-text-muted">Aún no hay dictámenes. El primero lo registra el CIC.</p>
+              <p className="text-sm text-text-muted">Aún no hay novedades. La primera la registra el Comité de Investigación Clínica.</p>
             )}
           </Card>
         </>
