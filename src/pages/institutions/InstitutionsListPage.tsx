@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useQuerySearch } from '@/hooks/useQuerySearch'
 import { PencilSimpleIcon, PlusIcon, TrashIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -20,7 +21,7 @@ const SEARCH_FETCH_LIMIT = 100
 export function InstitutionsListPage() {
   const [page, setPage] = useState(1)
   const [searchPage, setSearchPage] = useState(1)
-  const [searchInput, setSearchInput] = useState('')
+  const [searchInput, setSearchInput] = useQuerySearch()
   const [formOpen, setFormOpen] = useState(false)
   const [editingInstitution, setEditingInstitution] = useState<Institution | null>(null)
   const [deletingInstitution, setDeletingInstitution] = useState<Institution | null>(null)
