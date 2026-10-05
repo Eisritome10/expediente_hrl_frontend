@@ -118,7 +118,7 @@ export function ExpedienteStep() {
 
       {esInstitucional ? (
         <div className="flex items-center gap-2.5 rounded-lg border border-border bg-surface-muted/60 px-3.5 py-2.5 text-sm text-text">
-          <BuildingsIcon size={16} className="shrink-0 text-brand-600" />
+          <BuildingsIcon size={16} className="shrink-0 text-brand-700" />
           Lugar de ejecución: <span className="font-medium">{hospitalRegional?.name ?? 'HOSPITAL REGIONAL DE LORETO'}</span>
         </div>
       ) : (

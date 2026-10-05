@@ -37,7 +37,7 @@ function NavItem({ item }: { item: NavDestination }) {
       className={({ isActive }) =>
         cn(
           'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors',
-          isActive ? 'bg-white/15 font-medium text-white' : 'text-brand-50/85 hover:bg-white/10',
+          isActive ? 'bg-white/15 font-medium text-white' : 'text-white/85 hover:bg-white/10',
         )
       }
     >
@@ -50,7 +50,7 @@ function NavItem({ item }: { item: NavDestination }) {
 function FlatGroup({ group }: { group: NavGroup }) {
   return (
     <section aria-labelledby={`nav-${group.id}`}>
-      <h2 id={`nav-${group.id}`} className="px-2.5 pb-2 text-xs font-semibold tracking-wide text-brand-100/60 uppercase">
+      <h2 id={`nav-${group.id}`} className="px-2.5 pb-2 text-xs font-semibold tracking-wide text-white/60 uppercase">
         {group.title}
       </h2>
       <ul className="space-y-1">
@@ -94,7 +94,7 @@ function CollapsibleGroup({ group }: { group: NavGroup }) {
           onClick={toggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 font-semibold tracking-wide text-brand-100/70 uppercase transition-colors hover:bg-white/10 hover:text-white"
+          className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 font-semibold tracking-wide text-white/70 uppercase transition-colors hover:bg-white/10 hover:text-white"
         >
           <span className="flex items-center gap-2">
             {group.title}
@@ -125,14 +125,14 @@ function CollapsibleGroup({ group }: { group: NavGroup }) {
   )
 }
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col bg-gradient-to-b from-brand-700 to-brand-900 text-white">
+    <aside className={cn('h-full w-64 shrink-0 flex-col bg-gradient-to-b from-chrome-from to-chrome-to text-white', className)}>
       <div className="flex items-center gap-2.5 px-5 py-5">
         <HospitalIcon size={26} weight="bold" />
         <div className="leading-tight">
           <p className="text-sm font-semibold">Hospital Regional</p>
-          <p className="text-xs text-brand-100/70">de Loreto</p>
+          <p className="text-xs text-white/70">de Loreto</p>
         </div>
       </div>
 
@@ -144,7 +144,7 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-white/10 px-3 py-3">
-        <div className="flex items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-sm text-brand-50/60">
+        <div className="flex items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-sm text-white/60">
           <span className="flex items-center gap-2.5">
             <LockKeyIcon size={18} />
             Cambiar contraseña

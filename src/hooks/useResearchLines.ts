@@ -39,9 +39,9 @@ export function useCreateResearchLine() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateResearchLineInput) => createResearchLine(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['research-lines'] })
-      toast.success('Línea de investigación creada')
+      toast.success('Línea de investigación creada', { description: created.name })
     },
   })
 }

@@ -31,9 +31,9 @@ export function useCreateProtocol() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateProtocolInput) => createProtocol(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['protocols'] })
-      toast.success('Protocolo registrado')
+      toast.success('Protocolo registrado', { description: `Expediente ${created.nroExpediente}` })
     },
   })
 }

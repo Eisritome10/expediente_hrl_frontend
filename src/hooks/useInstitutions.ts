@@ -33,9 +33,9 @@ export function useCreateInstitution() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateInstitutionInput) => createInstitution(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['institutions'] })
-      toast.success('Institución creada')
+      toast.success('Institución creada', { description: created.name })
     },
   })
 }
@@ -78,9 +78,9 @@ export function useCreateInstitutionFaculty() {
   return useMutation({
     mutationFn: ({ institutionId, payload }: { institutionId: string; payload: CreateInstitutionFacultyInput }) =>
       createInstitutionFaculty(institutionId, payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['institutions', 'faculties'] })
-      toast.success('Facultad agregada')
+      toast.success('Facultad agregada', { description: created.name })
     },
   })
 }

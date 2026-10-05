@@ -30,9 +30,9 @@ export function useCreateAgreement() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateAgreementInput) => createAgreement(payload),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['agreements'] })
-      toast.success('Convenio creado')
+      toast.success('Convenio creado', { description: created.name })
     },
   })
 }

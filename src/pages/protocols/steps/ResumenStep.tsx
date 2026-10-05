@@ -25,7 +25,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function SummarySection({ title, onEdit, children }: { title: string; onEdit: () => void; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-white p-4">
+    <div className="rounded-lg border border-border bg-surface p-4">
       <div className="mb-1 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-text">{title}</h3>
         <Button type="button" variant="secondary" onClick={onEdit} className="px-3 py-1.5 text-xs">

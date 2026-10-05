@@ -249,7 +249,7 @@ function ReviewForm({
                     type="button"
                     onClick={() => removeRow(index)}
                     aria-label={`Quitar ${isObserving ? 'observación' : 'comentario'} ${index + 1}`}
-                    className="mt-7 flex size-9 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-white hover:text-red-700"
+                    className="mt-7 flex size-9 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface hover:text-red-700"
                   >
                     <TrashIcon size={18} />
                   </button>

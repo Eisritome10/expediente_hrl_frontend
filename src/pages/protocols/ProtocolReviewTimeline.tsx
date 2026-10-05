@@ -85,7 +85,7 @@ export function ProtocolReviewTimeline({
 
 const REVIEW_MARKERS: Record<ReviewOutcome, { icon: ReactNode; className: string }> = {
   OBSERVED: { icon: <WarningCircleIcon size={18} weight="fill" />, className: 'bg-amber-50 text-amber-600' },
-  APPROVED: { icon: <CheckCircleIcon size={18} weight="fill" />, className: 'bg-brand-50 text-brand-600' },
+  APPROVED: { icon: <CheckCircleIcon size={18} weight="fill" />, className: 'bg-brand-50 text-brand-700' },
   FINALIZED: { icon: <SealCheckIcon size={18} weight="fill" />, className: 'bg-emerald-50 text-emerald-600' },
 }
 

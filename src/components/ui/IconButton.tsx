@@ -21,7 +21,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       ref={ref}
       type={type}
       className={cn(
-        'rounded-md p-1.5 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+        'rounded-md p-1.5 transition pointer-coarse:p-2.5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
         toneClasses[tone],
         className,
       )}
