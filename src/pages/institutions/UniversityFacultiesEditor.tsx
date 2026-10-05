@@ -3,10 +3,12 @@ import { PlusIcon, TrashIcon, XIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { useCreateFaculty, useDeleteFaculty, useFacultiesList } from '@/hooks/useFaculties'
-import { getFacultyErrorMessage } from '@/pages/faculties/faculty-error-messages'
-
-const FACULTIES_LIMIT = 100
+import {
+  useCreateInstitutionFaculty,
+  useDeleteInstitutionFaculty,
+  useInstitutionFaculties,
+} from '@/hooks/useInstitutions'
+import { getInstitutionErrorMessage } from '@/pages/institutions/institution-error-messages'
 
 /**
  * Facultades de una universidad, cargadas a mano. Cada universidad tiene las suyas: se guardan como registros
@@ -28,11 +30,11 @@ export function UniversityFacultiesEditor({
   const [error, setError] = useState<string | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
-  const faculties = useFacultiesList({ page: 1, limit: FACULTIES_LIMIT, institutionId: institutionId ?? undefined }, { enabled: Boolean(institutionId) })
-  const createFaculty = useCreateFaculty()
-  const deleteFaculty = useDeleteFaculty()
+  const faculties = useInstitutionFaculties(institutionId)
+  const createFaculty = useCreateInstitutionFaculty()
+  const deleteFaculty = useDeleteInstitutionFaculty()
 
-  const persisted = institutionId ? (faculties.data?.data ?? []) : []
+  const persisted = institutionId ? (faculties.data ?? []) : []
   const existingNames = [...persisted.map((faculty) => faculty.name), ...drafts].map((value) => value.trim().toUpperCase())
 
   const add = async () => {
@@ -51,18 +53,21 @@ export function UniversityFacultiesEditor({
     }
 
     try {
-      await createFaculty.mutateAsync({ name: trimmed, institutionId })
+      await createFaculty.mutateAsync({ institutionId, payload: { name: trimmed } })
       setName('')
     } catch (e) {
-      setError(getFacultyErrorMessage(e))
+      setError(getInstitutionErrorMessage(e))
     }
   }
 
   const removeDraft = (index: number) => onDraftsChange(drafts.filter((_, current) => current !== index))
 
-  const removePersisted = async (id: string) => {
+  const removePersisted = async (facultyId: string) => {
+    if (!institutionId) return
     try {
-      await deleteFaculty.mutateAsync(id)
+      await deleteFaculty.mutateAsync({ institutionId, facultyId })
+    } catch {
+      // El error ya se muestra con un aviso (onError del hook).
     } finally {
       setConfirmingId(null)
     }

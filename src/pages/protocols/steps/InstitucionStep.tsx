@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { FormField } from '@/components/ui/Input'
-import { useFacultiesList } from '@/hooks/useFaculties'
-import { useInstitutionsList } from '@/hooks/useInstitutions'
+import { useInstitutionFaculties, useInstitutionsList } from '@/hooks/useInstitutions'
 import { useModalitiesList } from '@/hooks/useModalities'
 import { cn } from '@/lib/cn'
 import type { ProtocolFormValues } from '@/schemas/protocol.schema'
@@ -27,16 +26,13 @@ export function InstitucionStep() {
   const selectedInstitution = institutions.data?.data.find((institution) => institution.id === institucionId)
   const facultadEnabled = selectedInstitution?.type === 'UNIVERSITY'
   // Cada universidad tiene sus propias facultades: solo se cargan las de la universidad elegida.
-  const faculties = useFacultiesList(
-    { page: 1, limit: CATALOG_LIMIT, institutionId: institucionId || undefined },
-    { enabled: facultadEnabled },
-  )
+  const faculties = useInstitutionFaculties(institucionId || null, { enabled: facultadEnabled })
 
   const institutionOptions: ComboboxOption[] = (institutions.data?.data ?? []).map((institution) => ({
     id: institution.id,
     label: institution.name,
   }))
-  const facultyOptions: ComboboxOption[] = (faculties.data?.data ?? []).map((faculty) => ({
+  const facultyOptions: ComboboxOption[] = (faculties.data ?? []).map((faculty) => ({
     id: faculty.id,
     label: faculty.name,
   }))
