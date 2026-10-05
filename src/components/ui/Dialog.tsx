@@ -29,8 +29,16 @@ export function Dialog({ open, onClose, title, children, footer, className }: Di
   return (
     <dialog
       ref={ref}
-      onClose={onClose}
-      onCancel={onClose}
+      // `close`/`cancel` burbujean por el árbol de React: sin esto, cerrar un diálogo anidado
+      // (p. ej. el selector de un Combobox) cerraría también el diálogo que lo contiene.
+      onClose={(event) => {
+        event.stopPropagation()
+        onClose()
+      }}
+      onCancel={(event) => {
+        event.stopPropagation()
+        onClose()
+      }}
       onClick={(event) => {
         if (event.target === ref.current) onClose()
       }}
