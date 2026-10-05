@@ -11,4 +11,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    // Para probar desde el teléfono con un túnel (ngrok): el servidor acepta ese dominio y reenvía /api al
+    // backend local, así basta un solo túnel y el frontend usa VITE_API_URL=/api/v1 (misma URL, sin CORS).
+    allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.app', '.ngrok.io'],
+    proxy: {
+      '/api': { target: 'http://localhost:3002', changeOrigin: true },
+    },
+  },
 })
