@@ -43,20 +43,16 @@ export type UpdateInstitutionInput = Partial<CreateInstitutionInput>
 export interface Faculty {
   id: string
   name: string
-  /** Universidad a la que pertenece; nulo solo en facultades históricas del catálogo global anterior. */
-  institutionId: string | null
-  institutionName: string | null
+  /** Universidad a la que pertenece. */
+  institutionId: string
   createdAt: string
   updatedAt: string
 }
 
-export interface CreateFacultyInput {
+/** Al agregar una facultad solo se envía el nombre: la universidad sale de la URL. */
+export interface CreateInstitutionFacultyInput {
   name: string
-  institutionId: string
 }
-
-/** La universidad de una facultad no cambia: solo se puede renombrar. */
-export type UpdateFacultyInput = Partial<Pick<CreateFacultyInput, 'name'>>
 
 export interface Destination {
   id: string

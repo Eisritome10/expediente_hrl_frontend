@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { createFaculty } from '@/api/faculties'
+import { createInstitutionFaculty } from '@/api/institutions'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { FormAlert } from '@/components/ui/FormAlert'
@@ -76,12 +76,12 @@ function InstitutionFormFields({ institution, onClose }: { institution: Institut
     const failed: string[] = []
     for (const name of facultyDrafts) {
       try {
-        await createFaculty({ name, institutionId })
+        await createInstitutionFaculty(institutionId, { name })
       } catch {
         failed.push(name)
       }
     }
-    await queryClient.invalidateQueries({ queryKey: ['faculties'] })
+    await queryClient.invalidateQueries({ queryKey: ['institutions', 'faculties'] })
     if (failed.length > 0) {
       toast.error(`La institución se guardó, pero no se pudieron guardar estas facultades: ${failed.join(', ')}.`)
     }

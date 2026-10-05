@@ -4,8 +4,7 @@ import { PencilSimpleIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { useAgreementsList } from '@/hooks/useAgreements'
 import { useDestinationsList } from '@/hooks/useDestinations'
-import { useFacultiesList } from '@/hooks/useFaculties'
-import { useInstitutionsList } from '@/hooks/useInstitutions'
+import { useInstitutionFaculties, useInstitutionsList } from '@/hooks/useInstitutions'
 import { useModalitiesList } from '@/hooks/useModalities'
 import { useProtocol } from '@/hooks/useProtocols'
 import { useResearchersList } from '@/hooks/useResearchers'
@@ -45,10 +44,7 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
 
   const researchers = useResearchersList({ page: 1, limit: CATALOG_LIMIT })
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
-  const faculties = useFacultiesList(
-    { page: 1, limit: CATALOG_LIMIT, institutionId: values.institucionId || undefined },
-    { enabled: Boolean(values.institucionId) && Boolean(values.facultadId) },
-  )
+  const faculties = useInstitutionFaculties(values.institucionId || null, { enabled: Boolean(values.facultadId) })
   const destinations = useDestinationsList({ page: 1, limit: CATALOG_LIMIT })
   const studyDesigns = useStudyDesignsList({ page: 1, limit: CATALOG_LIMIT })
   const modalities = useModalitiesList({ page: 1, limit: CATALOG_LIMIT })
@@ -68,7 +64,7 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
   const researcherList = (ids: string[]) => ids.map(researcherLabel).filter(Boolean).join(', ')
 
   const institutionLabel = institutions.data?.data.find((item) => item.id === values.institucionId)?.name ?? ''
-  const facultyLabel = faculties.data?.data.find((item) => item.id === values.facultadId)?.name ?? ''
+  const facultyLabel = faculties.data?.find((item) => item.id === values.facultadId)?.name ?? ''
   const destinationLabels = values.destinoIds
     .map((id) => destinations.data?.data.find((item) => item.id === id)?.description)
     .filter(Boolean)
