@@ -51,7 +51,7 @@ export function PendingObservationPanel({
         <p className="max-w-prose text-sm text-amber-900">
           {onCorrect
             ? 'Corrige el expediente según estas observaciones. Al enviar la corrección, el comité podrá volver a evaluarlo.'
-            : 'Acércate a la OADI para corregirla.'}
+            : 'Acércate a la oficina de investigación para corregirlas.'}
         </p>
         {onCorrect && (
           <Button onClick={onCorrect} className="shrink-0">

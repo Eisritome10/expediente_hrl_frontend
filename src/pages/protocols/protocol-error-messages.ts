@@ -8,7 +8,7 @@ export function getProtocolErrorMessage(error: unknown): string {
       case 'PROTOCOL_NOT_FOUND':
         return 'El protocolo ya no existe. Actualiza la lista e intenta nuevamente.'
       case 'PROTOCOL_NOT_OBSERVED':
-        return 'Solo se puede corregir un protocolo que esté observado por el CIC o el CIEI.'
+        return 'Solo se puede corregir un protocolo que esté observado por el Comité de Investigación Clínica o el Comité de Ética en Investigación.'
       case 'PROTOCOL_ORIGINAL_NOT_AMENDABLE':
         return 'Solo se puede enmendar un protocolo finalizado.'
       case 'PROTOCOL_INVALID_REFERENCE':
@@ -56,7 +56,7 @@ export function getProtocolErrorMessage(error: unknown): string {
       case 'PROTOCOL_REVIEW_INVALID_OUTCOME_FOR_COMMITTEE':
         return 'El resultado seleccionado no es válido para el comité seleccionado.'
       case 'RESEARCHER_ACCOUNT_NOT_LINKED':
-        return 'Tu cuenta aún no está vinculada a un investigador. Comunícate con la OADI para que la vinculen.'
+        return 'Tu cuenta aún no está vinculada a un investigador. Comunícate con la oficina de investigación para que la vinculen.'
       default:
         return error.message || 'No se pudo completar la operación.'
     }
