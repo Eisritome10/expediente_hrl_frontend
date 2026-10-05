@@ -95,12 +95,31 @@ function ReviewForm({
 
   const outcome = watch('outcome')
   const isObserving = outcome === 'OBSERVED'
+  // Al aprobar o finalizar el comentario es opcional: no se muestra hasta que se pide con "Agregar comentario".
+  const [commentsOpen, setCommentsOpen] = useState(false)
+  const showRows = isObserving || commentsOpen
 
   // Al elegir "Observar" siempre hay al menos una observación lista para escribir.
   useEffect(() => {
     if (isObserving && fields.length === 0) append(EMPTY_ROW)
   }, [isObserving, fields.length, append])
   const isFinalizing = outcome === 'FINALIZED'
+
+  // Cambiar de resultado vuelve a plegar los comentarios opcionales.
+  useEffect(() => {
+    setCommentsOpen(false)
+  }, [outcome])
+
+  const openComments = () => {
+    if (fields.length === 0) append(EMPTY_ROW)
+    setCommentsOpen(true)
+  }
+
+  const removeRow = (index: number) => {
+    // Quitar el último comentario opcional deja otra vez solo el botón.
+    if (!isObserving && fields.length === 1) setCommentsOpen(false)
+    remove(index)
+  }
 
   const outcomeOptions: RadioCardOption<ReviewOutcome>[] = [
     {
@@ -130,7 +149,8 @@ function ReviewForm({
     // Las filas sin texto se descartan (salvo que al observar no quede ninguna completa); una fila con texto pero sin
     // tipo es un error.
     const completed: { type: ObservationType; text: string }[] = []
-    values.observations.forEach((row, index) => {
+    const rows = isObserving || commentsOpen ? values.observations : []
+    rows.forEach((row, index) => {
       const text = row.text.trim()
       if (!text) return
       if (!row.type) {
@@ -189,65 +209,79 @@ function ReviewForm({
       />
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="mb-1 text-sm font-medium text-text">
-          {isObserving ? 'Observaciones' : 'Comentarios (opcional)'}
-          {isObserving && (
-            <span className="text-red-700" aria-hidden>
-              {' '}
-              *
-            </span>
-          )}
-        </legend>
-        {isObserving && (
-          <p className="text-xs text-text-muted">
-            Cada observación lleva su tipo. El investigador las verá agrupadas por tipo para saber qué corregir.
-          </p>
-        )}
+        {showRows ? (
+          <>
+            <legend className="mb-1 text-sm font-medium text-text">
+              {isObserving ? 'Observaciones' : 'Comentario (opcional)'}
+              {isObserving && (
+                <span className="text-red-700" aria-hidden>
+                  {' '}
+                  *
+                </span>
+              )}
+            </legend>
+            {isObserving && (
+              <p className="text-xs text-text-muted">
+                Cada observación lleva su tipo. El investigador las verá agrupadas por tipo para saber qué corregir.
+              </p>
+            )}
 
-        {fields.map((field, index) => (
-          <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface-muted/60 p-3">
-            <div className="flex items-start gap-3">
-              <div className="flex-1">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface-muted/60 p-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1">
+                    <FormField
+                      label={isObserving ? 'Tipo de observación' : 'Tipo de comentario'}
+                      htmlFor={`observations.${index}.type`}
+                      error={errors.observations?.[index]?.type?.message}
+                    >
+                      <Select id={`observations.${index}.type`} {...register(`observations.${index}.type`)}>
+                        <option value="">Selecciona un tipo</option>
+                        {OBSERVATION_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {OBSERVATION_TYPE_LABELS[type]}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeRow(index)}
+                    aria-label={`Quitar ${isObserving ? 'observación' : 'comentario'} ${index + 1}`}
+                    className="mt-7 flex size-9 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-white hover:text-red-700"
+                  >
+                    <TrashIcon size={18} />
+                  </button>
+                </div>
                 <FormField
-                  label="Tipo de observación"
-                  htmlFor={`observations.${index}.type`}
-                  error={errors.observations?.[index]?.type?.message}
+                  label={isObserving ? 'Observación' : 'Comentario'}
+                  htmlFor={`observations.${index}.text`}
+                  error={errors.observations?.[index]?.text?.message}
                 >
-                  <Select id={`observations.${index}.type`} {...register(`observations.${index}.type`)}>
-                    <option value="">Selecciona un tipo</option>
-                    {OBSERVATION_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {OBSERVATION_TYPE_LABELS[type]}
-                      </option>
-                    ))}
-                  </Select>
+                  <Textarea id={`observations.${index}.text`} rows={3} {...register(`observations.${index}.text`)} />
                 </FormField>
               </div>
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                aria-label={`Quitar observación ${index + 1}`}
-                className="mt-7 flex size-9 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-white hover:text-red-700"
-              >
-                <TrashIcon size={18} />
-              </button>
-            </div>
-            <FormField
-              label="Observación"
-              htmlFor={`observations.${index}.text`}
-              error={errors.observations?.[index]?.text?.message}
-            >
-              <Textarea id={`observations.${index}.text`} rows={3} {...register(`observations.${index}.text`)} />
-            </FormField>
-          </div>
-        ))}
+            ))}
 
-        <div>
-          <Button type="button" variant="secondary" onClick={() => append(EMPTY_ROW)}>
-            <PlusIcon size={16} />
-            Agregar observación
-          </Button>
-        </div>
+            <div>
+              <Button type="button" variant="secondary" onClick={() => append(EMPTY_ROW)}>
+                <PlusIcon size={16} />
+                {isObserving ? 'Agregar observación' : 'Agregar otro comentario'}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <legend className="sr-only">Comentarios</legend>
+            <div>
+              <Button type="button" variant="secondary" onClick={openComments}>
+                <PlusIcon size={16} />
+                Agregar comentario
+              </Button>
+            </div>
+          </>
+        )}
       </fieldset>
 
       {isCiei && isFinalizing && (
