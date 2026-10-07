@@ -20,15 +20,17 @@ export function ResearchLineFormDialog({
   open,
   onClose,
   researchLine,
+  type,
 }: {
   open: boolean
   onClose: () => void
   researchLine: ResearchLine | null
+  type?: 'HRL' | 'META_2030'
 }) {
   return (
     <Dialog open={open} onClose={onClose} title={researchLine ? 'Editar línea de investigación' : 'Nueva línea de investigación'}>
       {open && (
-        <ResearchLineFormFields key={researchLine?.id ?? 'new'} researchLine={researchLine} onClose={onClose} />
+        <ResearchLineFormFields key={researchLine?.id ?? 'new'} researchLine={researchLine} onClose={onClose} defaultType={type} />
       )}
     </Dialog>
   )
@@ -37,9 +39,11 @@ export function ResearchLineFormDialog({
 function ResearchLineFormFields({
   researchLine,
   onClose,
+  defaultType,
 }: {
   researchLine: ResearchLine | null
   onClose: () => void
+  defaultType?: 'HRL' | 'META_2030'
 }) {
   const isEditing = Boolean(researchLine)
   const [formError, setFormError] = useState<string | null>(null)
@@ -57,7 +61,7 @@ function ResearchLineFormFields({
     reValidateMode: 'onChange',
     defaultValues: {
       name: researchLine?.name ?? '',
-      type: researchLine?.type ?? 'HRL',
+      type: researchLine?.type ?? defaultType ?? 'HRL',
     },
   })
 

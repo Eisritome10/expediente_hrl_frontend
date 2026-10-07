@@ -1,15 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { FormField } from '@/components/ui/Input'
 import { useInstitutionFaculties, useInstitutionsList } from '@/hooks/useInstitutions'
 import { useModalitiesList } from '@/hooks/useModalities'
+import { InstitutionFormDialog } from '@/pages/institutions/InstitutionFormDialog'
+import { ModalityFormDialog } from '@/pages/modalities/ModalityFormDialog'
 import { cn } from '@/lib/cn'
 import type { ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
 
 export function InstitucionStep() {
+  const [openInstitutionDialog, setOpenInstitutionDialog] = useState(false)
+  const [openModalityDialog, setOpenModalityDialog] = useState(false)
+
   const {
     control,
     setValue,
@@ -75,6 +81,7 @@ export function InstitucionStep() {
                 loading={institutions.isPending}
                 placeholder="Selecciona la institución (opcional)"
                 label="institución"
+                onCreateNew={() => setOpenInstitutionDialog(true)}
               />
             )}
           />
@@ -122,10 +129,19 @@ export function InstitucionStep() {
               error={errors.modalidadId?.message}
               placeholder="Selecciona la modalidad"
               label="modalidad"
+              onCreateNew={() => setOpenModalityDialog(true)}
             />
           )}
         />
       </FormField>
+
+      {createPortal(
+        <>
+          <InstitutionFormDialog open={openInstitutionDialog} onClose={() => setOpenInstitutionDialog(false)} institution={null} />
+          <ModalityFormDialog open={openModalityDialog} onClose={() => setOpenModalityDialog(false)} modality={null} />
+        </>,
+        document.body,
+      )}
     </div>
   )
 }
