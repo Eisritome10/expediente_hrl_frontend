@@ -24,6 +24,8 @@ interface MultiComboboxProps {
   disabled?: boolean
   /** Used in the modal title ("Agregar {label}") and as an accessible name for the trigger. */
   label?: string
+  /** Callback to create a new item without leaving the dialog */
+  onCreateNew?: () => void
 }
 
 export function MultiCombobox({
@@ -35,6 +37,7 @@ export function MultiCombobox({
   emptyMessage = 'Sin resultados.',
   disabled = false,
   label,
+  onCreateNew,
 }: MultiComboboxProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -157,7 +160,22 @@ export function MultiCombobox({
           )}
 
           <div>
-            <p className="mb-1.5 text-xs font-medium text-text-muted uppercase">Disponibles</p>
+            <div className="mb-1.5 flex items-center justify-between">
+              <p className="text-xs font-medium text-text-muted uppercase">Disponibles</p>
+              {onCreateNew && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCreateNew()
+                  }}
+                  className="flex items-center gap-1 text-xs font-medium text-brand-700 transition hover:text-brand-800"
+                  aria-label={`Crear nuevo ${label}`}
+                >
+                  <PlusIcon size={14} />
+                  Crear nuevo
+                </button>
+              )}
+            </div>
             <ul className="max-h-64 overflow-y-auto rounded-lg border border-border">
               {loading ? (
                 <li className="px-3.5 py-2 text-sm text-text-muted">Cargando...</li>

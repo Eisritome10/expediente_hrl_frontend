@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CaretDownIcon, CheckIcon, MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react'
+import { CaretDownIcon, CheckIcon, MagnifyingGlassIcon, PlusIcon, XIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { cn } from '@/lib/cn'
 
@@ -28,6 +28,8 @@ interface ComboboxProps {
   emptyMessage?: string
   /** Used in the modal title ("Seleccionar {label}"). */
   label?: string
+  /** Callback to create a new item without leaving the dialog */
+  onCreateNew?: () => void
 }
 
 export function Combobox({
@@ -40,6 +42,7 @@ export function Combobox({
   disabled = false,
   emptyMessage = 'Sin resultados.',
   label,
+  onCreateNew,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -110,6 +113,22 @@ export function Combobox({
               >
                 <XIcon size={12} />
                 Quitar
+              </button>
+            </div>
+          )}
+
+          {onCreateNew && (
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  onCreateNew()
+                }}
+                className="flex items-center gap-1 text-xs font-medium text-brand-700 transition hover:text-brand-800"
+                aria-label={`Crear nuevo ${label}`}
+              >
+                <PlusIcon size={14} />
+                Crear nuevo
               </button>
             </div>
           )}

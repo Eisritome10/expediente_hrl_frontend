@@ -1,14 +1,18 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { FormField, Input, Select } from '@/components/ui/Input'
 import { Switch } from '@/components/ui/Switch'
 import { useAgreementsList } from '@/hooks/useAgreements'
 import { useModalitiesList } from '@/hooks/useModalities'
+import { AgreementFormDialog } from '@/pages/agreements/AgreementFormDialog'
 import type { ProtocolFormValues } from '@/schemas/protocol.schema'
 
 /** Sección de pago dentro del paso "Institución y pago": el monto lo fija la modalidad elegida arriba. */
 export function PagoStep() {
+  const [openAgreementDialog, setOpenAgreementDialog] = useState(false)
+
   const {
     register,
     watch,
@@ -76,6 +80,7 @@ export function PagoStep() {
                 loading={loadingAgreements}
                 error={errors.convenioId?.message}
                 label="convenio"
+                onCreateNew={() => setOpenAgreementDialog(true)}
               />
             </FormField>
           )}
@@ -130,6 +135,11 @@ export function PagoStep() {
             />
           </FormField>
         </div>
+      )}
+
+      {createPortal(
+        <AgreementFormDialog open={openAgreementDialog} onClose={() => setOpenAgreementDialog(false)} agreement={null} />,
+        document.body,
       )}
     </div>
   )

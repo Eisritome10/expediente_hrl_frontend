@@ -1,15 +1,21 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { MultiCombobox } from '@/components/ui/MultiCombobox'
 import { FormField } from '@/components/ui/Input'
 import { useResearchersList } from '@/hooks/useResearchers'
 import { useResearchLinesByType } from '@/hooks/useResearchLines'
+import { ResearcherFormDialog } from '@/pages/researchers/ResearcherFormDialog'
+import { ResearchLineFormDialog } from '@/pages/research-lines/ResearchLineFormDialog'
 import type { ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
 
 export function EquipoStep() {
+  const [openResearcherDialog, setOpenResearcherDialog] = useState(false)
+  const [openResearchLineDialog, setOpenResearchLineDialog] = useState<'HRL' | 'META_2030' | null>(null)
+
   const {
     control,
     formState: { errors },
@@ -18,6 +24,11 @@ export function EquipoStep() {
   const investigadorPrincipalId = useWatch<ProtocolFormValues, 'investigadorPrincipalId'>({
     control,
     name: 'investigadorPrincipalId',
+  })
+
+  const coinvestigadorIds = useWatch<ProtocolFormValues, 'coinvestigadorIds'>({
+    control,
+    name: 'coinvestigadorIds',
   })
 
   const researchers = useResearchersList({ page: 1, limit: CATALOG_LIMIT })
@@ -33,6 +44,12 @@ export function EquipoStep() {
   const teamOptions = useMemo(
     () => researcherOptions.filter((option) => option.id !== investigadorPrincipalId),
     [researcherOptions, investigadorPrincipalId],
+  )
+
+  // Asesores no pueden ser coinvestigadores
+  const asesorOptions = useMemo(
+    () => teamOptions.filter((option) => !coinvestigadorIds.includes(option.id)),
+    [teamOptions, coinvestigadorIds],
   )
 
   const hrlOptions: ComboboxOption[] = (lineasHrl.data?.data ?? []).map((line) => ({ id: line.id, label: line.name }))
@@ -58,6 +75,7 @@ export function EquipoStep() {
               error={errors.investigadorPrincipalId?.message}
               placeholder="Busca al investigador principal"
               label="investigador principal"
+              onCreateNew={() => setOpenResearcherDialog(true)}
             />
           )}
         />
@@ -75,6 +93,7 @@ export function EquipoStep() {
               loading={researchers.isPending}
               placeholder="Agregar coinvestigador (opcional)"
               label="coinvestigadores"
+              onCreateNew={() => setOpenResearcherDialog(true)}
             />
           )}
         />
@@ -86,12 +105,13 @@ export function EquipoStep() {
           control={control}
           render={({ field }) => (
             <MultiCombobox
-              options={teamOptions}
+              options={asesorOptions}
               value={field.value}
               onChange={field.onChange}
               loading={researchers.isPending}
               placeholder="Agregar asesor (opcional)"
               label="asesores"
+              onCreateNew={() => setOpenResearcherDialog(true)}
             />
           )}
         />
@@ -111,6 +131,7 @@ export function EquipoStep() {
                 error={errors.lineaHrlId?.message}
                 placeholder="Selecciona la línea HRL"
                 label="línea de investigación HRL"
+                onCreateNew={() => setOpenResearchLineDialog('HRL')}
               />
             )}
           />
@@ -129,11 +150,31 @@ export function EquipoStep() {
                 error={errors.lineaMeta2030Id?.message}
                 placeholder="Selecciona la línea Meta 2030"
                 label="línea de investigación Meta 2030"
+                onCreateNew={() => setOpenResearchLineDialog('META_2030')}
               />
             )}
           />
         </FormField>
       </div>
+
+      {createPortal(
+        <>
+          <ResearcherFormDialog open={openResearcherDialog} onClose={() => setOpenResearcherDialog(false)} researcher={null} />
+          <ResearchLineFormDialog
+            open={openResearchLineDialog === 'HRL'}
+            onClose={() => setOpenResearchLineDialog(null)}
+            researchLine={null}
+            type="HRL"
+          />
+          <ResearchLineFormDialog
+            open={openResearchLineDialog === 'META_2030'}
+            onClose={() => setOpenResearchLineDialog(null)}
+            researchLine={null}
+            type="META_2030"
+          />
+        </>,
+        document.body,
+      )}
     </div>
   )
 }

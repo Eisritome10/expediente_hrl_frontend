@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Controller, useFormContext } from 'react-hook-form'
 import { BuildingsIcon } from '@phosphor-icons/react'
 import { FormField, Input, Textarea } from '@/components/ui/Input'
@@ -7,9 +8,19 @@ import { Switch } from '@/components/ui/Switch'
 import { useDestinationsList } from '@/hooks/useDestinations'
 import { useInstitutionsList } from '@/hooks/useInstitutions'
 import { useStudyDesignsList } from '@/hooks/useStudyDesigns'
+import { StudyDesignFormDialog } from '@/pages/study-designs/StudyDesignFormDialog'
+import { DestinationFormDialog } from '@/pages/destinations/DestinationFormDialog'
 import { normalizeAlnum, type ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
+
+function formatNroExpediente(value: string): string {
+  // Remove non-numeric characters
+  const cleaned = value.replace(/\D/g, '')
+  // Format as XXXX/YYYY (4 digits, slash, up to 4 digits)
+  if (cleaned.length <= 4) return cleaned
+  return `${cleaned.slice(0, 4)}/${cleaned.slice(4, 8)}`
+}
 
 export function ExpedienteStep() {
   const {
@@ -19,6 +30,9 @@ export function ExpedienteStep() {
     control,
     formState: { errors },
   } = useFormContext<ProtocolFormValues>()
+
+  const [openStudyDesignDialog, setOpenStudyDesignDialog] = useState(false)
+  const [openDestinationDialog, setOpenDestinationDialog] = useState(false)
 
   const esInstitucional = watch('esInstitucional')
 
@@ -64,7 +78,7 @@ export function ExpedienteStep() {
         <FormField
           label="N° de expediente"
           htmlFor="nroExpediente"
-          hint="Solo números: hasta 4 dígitos, una barra y hasta 6 dígitos."
+          hint="Formato: 4 dígitos / 4 dígitos (se completa automáticamente)"
           error={errors.nroExpediente?.message}
           required
         >
@@ -72,10 +86,15 @@ export function ExpedienteStep() {
             id="nroExpediente"
             autoFocus
             inputMode="numeric"
-            maxLength={11}
-            placeholder="1234/123456"
+            maxLength={9}
+            placeholder="1234/2026"
             error={errors.nroExpediente?.message}
-            {...register('nroExpediente')}
+            {...register('nroExpediente', {
+              onChange: (e) => {
+                const formatted = formatNroExpediente(e.target.value)
+                e.target.value = formatted
+              },
+            })}
           />
         </FormField>
 
@@ -100,6 +119,7 @@ export function ExpedienteStep() {
               loading={studyDesigns.isPending}
               placeholder="Agregar diseño de estudio"
               label="diseños de estudio"
+              onCreateNew={() => setOpenStudyDesignDialog(true)}
             />
           )}
         />
@@ -145,10 +165,19 @@ export function ExpedienteStep() {
                 loading={destinations.isPending}
                 placeholder="Agregar destino (opcional)"
                 label="destinos"
+                onCreateNew={() => setOpenDestinationDialog(true)}
               />
             )}
           />
         </FormField>
+      )}
+
+      {createPortal(
+        <>
+          <StudyDesignFormDialog open={openStudyDesignDialog} onClose={() => setOpenStudyDesignDialog(false)} studyDesign={null} />
+          <DestinationFormDialog open={openDestinationDialog} onClose={() => setOpenDestinationDialog(false)} destination={null} />
+        </>,
+        document.body,
       )}
     </div>
   )
