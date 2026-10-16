@@ -1,4 +1,4 @@
-import { apiFetch } from '@/api/client'
+import { apiFetch, apiFetchBlob } from '@/api/client'
 import type { Paginated } from '@/types/common'
 import type {
   CreateProtocolInput,
@@ -45,4 +45,8 @@ export function listMyProtocols(params: { page?: number; limit?: number } = {}) 
 
 export function getMyProtocolById(id: string) {
   return apiFetch<ResearcherProtocolDetail>(`/protocols/mine/${id}`)
+}
+
+export function downloadMyProtocolEthicsCertificate(id: string) {
+  return apiFetchBlob(`/protocols/mine/${id}/ethics-certificate`)
 }

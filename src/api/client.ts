@@ -64,3 +64,28 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
 }
+
+export async function apiFetchBlob(path: string): Promise<Blob> {
+  const doFetch = () => {
+    const headers = new Headers()
+    const accessToken = tokenStorage.getAccessToken()
+    if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
+    return fetch(`${API_URL}${path}`, { headers })
+  }
+
+  let response = await doFetch()
+  if (response.status === 401) {
+    refreshPromise ??= refreshSession().finally(() => {
+      refreshPromise = null
+    })
+    if (await refreshPromise) response = await doFetch()
+    else tokenStorage.clear()
+  }
+
+  if (!response.ok) {
+    const errorBody = (await response.json().catch(() => undefined)) as ApiErrorBody | undefined
+    throw new ApiError(response.status, errorBody)
+  }
+
+  return response.blob()
+}
