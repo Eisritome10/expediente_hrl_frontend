@@ -28,7 +28,7 @@ export function StatCard({ label, value, loading, error, icon: Icon, tone = 'bra
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-xs font-medium text-text-muted">{label}</p>
+          <p className="text-xs font-medium leading-tight text-text-muted">{label}</p>
           {isMock && <Badge tone="warning">mock</Badge>}
         </div>
         {loading ? (

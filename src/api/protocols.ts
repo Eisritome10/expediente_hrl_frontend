@@ -1,9 +1,10 @@
-import { apiFetch } from '@/api/client'
+import { apiFetch, apiFetchBlob } from '@/api/client'
 import type { Paginated } from '@/types/common'
 import type {
   CreateProtocolInput,
   Protocol,
   ProtocolListFilters,
+  ProtocolStatus,
   ProtocolSummary,
   ResearcherProtocolDetail,
   UpdateProtocolInput,
@@ -45,4 +46,28 @@ export function listMyProtocols(params: { page?: number; limit?: number } = {}) 
 
 export function getMyProtocolById(id: string) {
   return apiFetch<ResearcherProtocolDetail>(`/protocols/mine/${id}`)
+}
+
+export type DashboardReport = {
+  from: string
+  to: string
+  total: number
+  byStatus: Record<ProtocolStatus, number>
+}
+
+export function getDashboardReport(params: { from?: string; to?: string } = {}) {
+  const query = new URLSearchParams()
+
+  if (params.from) query.set('from', params.from)
+  if (params.to) query.set('to', params.to)
+
+  const qs = query.toString()
+
+  return apiFetch<DashboardReport>(
+    `/protocols/dashboard-report${qs ? `?${qs}` : ''}`,
+  )
+}
+
+export function downloadMyProtocolEthicsCertificate(id: string) {
+  return apiFetchBlob(`/protocols/mine/${id}/ethics-certificate`)
 }
