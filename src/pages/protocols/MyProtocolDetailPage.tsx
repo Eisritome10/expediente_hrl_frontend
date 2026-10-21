@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, ClipboardTextIcon, LinkBreakIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ClipboardTextIcon, DownloadSimpleIcon, LinkBreakIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { downloadMyProtocolEthicsCertificate } from '@/api/protocols'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -27,6 +30,7 @@ export function MyProtocolDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: protocol, isPending, isError, error } = useMyProtocol(id ?? null)
+  const [isDownloadingCertificate, setIsDownloadingCertificate] = useState(false)
 
   const isNotLinked = error instanceof ApiError && error.body?.errorCode === 'RESEARCHER_ACCOUNT_NOT_LINKED'
   const isNotFound = error instanceof ApiError && error.status === 404
@@ -36,6 +40,24 @@ export function MyProtocolDetailPage() {
   const observingCommittee: Committee = protocol?.status === 'CIEI_OBSERVED' ? 'CIEI' : 'CIC'
   const pendingObservation =
     reviews.find((review) => review.outcome === 'OBSERVED' && review.committee === observingCommittee) ?? null
+
+  async function handleDownloadCertificate() {
+    if (!protocol) return
+    setIsDownloadingCertificate(true)
+    try {
+      const file = await downloadMyProtocolEthicsCertificate(protocol.id)
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `constancia-etica-${protocol.nroExpediente}.pdf`
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch {
+      toast.error('No se pudo descargar la constancia. Intenta nuevamente.')
+    } finally {
+      setIsDownloadingCertificate(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,6 +100,15 @@ export function MyProtocolDetailPage() {
       ) : (
         <>
           <ProtocolJourney protocol={protocol} />
+
+          {protocol.status === 'FINALIZED' && (
+            <div>
+              <Button onClick={handleDownloadCertificate} disabled={isDownloadingCertificate}>
+                <DownloadSimpleIcon size={16} />
+                {isDownloadingCertificate ? 'Generando constancia…' : 'Descargar constancia CIEI'}
+              </Button>
+            </div>
+          )}
 
           {isObserved && <PendingObservationPanel observation={pendingObservation} />}
 

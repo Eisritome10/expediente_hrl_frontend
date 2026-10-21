@@ -1,4 +1,4 @@
-import { apiFetch } from '@/api/client'
+import { apiFetch, apiFetchBlob } from '@/api/client'
 import type { Paginated } from '@/types/common'
 import type {
   CreateProtocolInput,
@@ -66,4 +66,8 @@ export function getDashboardReport(params: { from?: string; to?: string } = {}) 
   return apiFetch<DashboardReport>(
     `/protocols/dashboard-report${qs ? `?${qs}` : ''}`,
   )
+}
+
+export function downloadMyProtocolEthicsCertificate(id: string) {
+  return apiFetchBlob(`/protocols/mine/${id}/ethics-certificate`)
 }
