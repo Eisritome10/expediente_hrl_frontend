@@ -179,6 +179,10 @@ Rules:
 - Una institución tiene un tipo (`InstitutionType`: Hospital, Universidad, Otra; `pages/institutions/institution-types.ts`). Hospital y Otra solo llevan nombre y abreviatura. Una Universidad abre `UniversityFacultiesEditor` dentro de `InstitutionFormDialog`: al crearla, las facultades escritas son un borrador que se guarda (cada una como `POST /faculties`) tras crear la institución; al editarla, cada alta o baja se guarda al instante.
 - Las facultades pertenecen a una universidad: `FacultyFormDialog` pide la universidad al crear (solo las de tipo Universidad) y no permite cambiarla al editar. `useFacultiesList` acepta `institutionId`; el paso "Institución y pago" del asistente solo carga las facultades de la universidad elegida y limpia la facultad al cambiar de institución.
 
+## Alta de investigadores con RENIEC
+
+- `ResearcherFormDialog` (también usado desde `EquipoStep`) al **crear** consulta el DNI en cuanto tiene 8 dígitos (`useReniecLookup` → `GET /researchers/lookup/:dni`) y autocompleta nombres y apellidos, que quedan de solo lectura. Si RENIEC no lo encuentra o no responde (`RENIEC_DNI_NOT_FOUND`/`RENIEC_UNAVAILABLE`/`RENIEC_NOT_CONFIGURED`) los campos se habilitan para escribirlos a mano, con el aviso de `getReniecLookupMessage`. Un DNI ya registrado muestra el error en el campo DNI. Correo y teléfono siempre son manuales. En edición no se consulta (los flags de la consulta se ignoran porque React Query puede traer resultados en caché).
+
 ## Flujo del investigador (rol `RESEARCHER`)
 
 - `RequireAuth` acepta `roles`; un rol no permitido vuelve a su inicio (`lib/role-home.ts`: `ADMIN` → `/`, `RESEARCHER` → `/mis-protocolos`). Todo el panel administrativo va con `roles={['ADMIN']}`.

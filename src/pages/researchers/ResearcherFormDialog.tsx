@@ -1,13 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { InfoIcon } from '@phosphor-icons/react'
+import { CheckCircleIcon, InfoIcon } from '@phosphor-icons/react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input, FormField } from '@/components/ui/Input'
-import { useCreateResearcher, useUpdateResearcher } from '@/hooks/useResearchers'
+import { useCreateResearcher, useReniecLookup, useUpdateResearcher } from '@/hooks/useResearchers'
 import { researcherFormSchema, type ResearcherFormValues } from '@/schemas/researcher.schema'
-import { getResearcherErrorMessage } from '@/pages/researchers/researcher-error-messages'
+import {
+  getReniecLookupMessage,
+  getResearcherErrorMessage,
+  isDuplicateResearcherError,
+} from '@/pages/researchers/researcher-error-messages'
 import type { Researcher } from '@/types/entities'
 import { FormAlert } from '@/components/ui/FormAlert'
 
@@ -36,6 +40,8 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ResearcherFormValues>({
     resolver: zodResolver(researcherFormSchema),
@@ -49,6 +55,39 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
       phone: researcher?.phone ?? '',
     },
   })
+
+  // Al crear, el DNI se valida en RENIEC y de ahí salen nombres y apellidos. Si RENIEC no responde o no lo
+  // encuentra, los campos se habilitan para escribirlos a mano (correo y teléfono siempre son manuales).
+  const dni = watch('dni')
+  const lookup = useReniecLookup(dni, !isEditing)
+  // En edición la consulta está deshabilitada, pero React Query puede traer resultados en caché de un alta anterior.
+  const lookupError = !isEditing && lookup.isError ? lookup.error : null
+  const lookupData = isEditing ? undefined : lookup.data
+  const isDuplicate = lookupError !== null && isDuplicateResearcherError(lookupError)
+  const isManualFallback = lookupError !== null && !isDuplicate
+  const isLookingUp = !isEditing && lookup.isFetching
+  const namesLocked = !isEditing && !isManualFallback
+
+  useEffect(() => {
+    if (isEditing) return
+    setValue('firstName', '')
+    setValue('lastName', '')
+  }, [dni, isEditing, setValue])
+
+  useEffect(() => {
+    if (!lookupData) return
+    setValue('firstName', lookupData.firstName, { shouldValidate: true })
+    setValue('lastName', lookupData.lastName, { shouldValidate: true })
+  }, [lookupData, setValue])
+
+  const dniHint = isEditing
+    ? undefined
+    : isLookingUp
+      ? 'Consultando RENIEC…'
+      : lookupData || lookupError
+        ? undefined
+        : 'Al ingresar el DNI se completan los nombres y apellidos desde RENIEC.'
+  const dniMessage = lookupError && !isLookingUp ? getReniecLookupMessage(lookupError) : undefined
 
   const onSubmit = async (values: ResearcherFormValues) => {
     setFormError(null)
@@ -80,23 +119,58 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
         </div>
       )}
 
-      <FormField label="DNI" htmlFor="dni" error={errors.dni?.message} required>
+      <FormField
+        label="DNI"
+        htmlFor="dni"
+        hint={dniHint}
+        error={errors.dni?.message ?? (isDuplicate ? dniMessage : undefined)}
+        required
+      >
         <Input
           id="dni"
           maxLength={8}
+          inputMode="numeric"
+          autoFocus={!isEditing}
           disabled={isEditing}
           placeholder="12345678"
-          error={errors.dni?.message}
+          error={errors.dni?.message ?? (isDuplicate ? dniMessage : undefined)}
           {...register('dni')}
         />
       </FormField>
 
+      {lookupData && (
+        <p className="-mt-2 flex items-center gap-1.5 text-xs font-medium text-brand-700">
+          <CheckCircleIcon size={16} weight="fill" aria-hidden />
+          Datos obtenidos de RENIEC. Completa el correo y el teléfono si los tienes.
+        </p>
+      )}
+      {isManualFallback && dniMessage && !isLookingUp && (
+        <p role="status" className="-mt-2 flex items-start gap-1.5 text-xs text-amber-700">
+          <InfoIcon size={16} className="mt-px shrink-0" aria-hidden />
+          {dniMessage}
+        </p>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <FormField label="Nombres" htmlFor="firstName" error={errors.firstName?.message} required>
-          <Input id="firstName" autoFocus error={errors.firstName?.message} {...register('firstName')} />
+          <Input
+            id="firstName"
+            readOnly={namesLocked}
+            placeholder={namesLocked ? 'Se completa con el DNI' : undefined}
+            className={namesLocked ? 'bg-wash' : undefined}
+            error={errors.firstName?.message}
+            {...register('firstName')}
+          />
         </FormField>
         <FormField label="Apellidos" htmlFor="lastName" error={errors.lastName?.message} required>
-          <Input id="lastName" error={errors.lastName?.message} {...register('lastName')} />
+          <Input
+            id="lastName"
+            readOnly={namesLocked}
+            placeholder={namesLocked ? 'Se completa con el DNI' : undefined}
+            className={namesLocked ? 'bg-wash' : undefined}
+            error={errors.lastName?.message}
+            {...register('lastName')}
+          />
         </FormField>
       </div>
 
