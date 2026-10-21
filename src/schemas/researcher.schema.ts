@@ -5,11 +5,11 @@ export const researcherFormSchema = z.object({
   firstName: z
     .string()
     .min(1, 'Ingresa los nombres.')
-    .max(100, 'Máximo 100 caracteres.'),
+    .max(150, 'Máximo 150 caracteres.'),
   lastName: z
     .string()
     .min(1, 'Ingresa los apellidos.')
-    .max(100, 'Máximo 100 caracteres.'),
+    .max(150, 'Máximo 150 caracteres.'),
   email: z.union([z.literal(''), z.string().email('Ingresa un correo válido.')]).optional(),
   phone: z
     .union([z.literal(''), z.string().regex(/^\d{9}$/, 'El teléfono debe tener exactamente 9 dígitos.')])
