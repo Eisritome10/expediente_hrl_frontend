@@ -42,6 +42,7 @@ export function DashboardPage() {
   const [to, setTo] = useState('')
   const [customRange, setCustomRange] = useState(false)
   const [downloadError, setDownloadError] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
 
   // Reporte del trimestre actual.
   const quarterlyReport = useDashboardReport()
@@ -52,6 +53,17 @@ export function DashboardPage() {
     to || undefined,
     customRange && Boolean(from) && Boolean(to),
 )
+
+  async function exportReport(report: Parameters<typeof downloadDashboardReport>[0]) {
+    setIsExporting(true)
+    try {
+      await downloadDashboardReport(report)
+    } catch {
+      setDownloadError('No se pudo generar el archivo Excel. Intenta nuevamente.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   function handleQuarterlyDownload() {
     setDownloadError('')
@@ -66,7 +78,7 @@ export function DashboardPage() {
       return
     }
 
-    downloadDashboardReport(quarterlyReport.data)
+    void exportReport(quarterlyReport.data)
   }
 
   function handleCustomDownload() {
@@ -108,7 +120,7 @@ export function DashboardPage() {
       return
     }
 
-    downloadDashboardReport(customReport.data)
+    void exportReport(customReport.data)
   }
 
   return (
@@ -206,6 +218,7 @@ export function DashboardPage() {
                 quarterlyReport.isError ||
                 !quarterlyReport.data
               }
+              loading={isExporting}
             >
               <DownloadSimpleIcon size={18} />
               Descargar reporte trimestral
@@ -250,7 +263,7 @@ export function DashboardPage() {
                 />
               </label>
 
-              <Button onClick={handleCustomDownload} loading={customReport.isFetching}>
+              <Button onClick={handleCustomDownload} loading={customReport.isFetching || isExporting}>
                 <DownloadSimpleIcon size={18} />
                 Descargar Excel personalizado
               </Button>
