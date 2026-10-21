@@ -10,6 +10,7 @@ import {
   useInstitutionCount,
   useDashboardReport,
 } from '@/hooks/useDashboardStats'
+import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { Card } from '@/components/ui/Card'
 import { downloadDashboardReport } from '@/utils/dashboardReport'
@@ -160,7 +161,7 @@ export function DashboardPage() {
           </div>
 
           {quarterlyReport.isError && (
-            <p className="mb-4 text-sm text-red-600">
+            <p className="mb-4 text-sm text-danger">
               No se pudieron cargar las estadísticas de protocolos.
             </p>
           )}
@@ -198,30 +199,27 @@ export function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
+            <Button
               onClick={handleQuarterlyDownload}
               disabled={
                 quarterlyReport.isPending ||
                 quarterlyReport.isError ||
                 !quarterlyReport.data
               }
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               <DownloadSimpleIcon size={18} />
               Descargar reporte trimestral
-            </button>
+            </Button>
 
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={() => {
                 setCustomRange(true)
                 setDownloadError('')
               }}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text"
             >
               Personalizar fechas
-            </button>
+            </Button>
           </div>
 
           {customRange && (
@@ -252,19 +250,15 @@ export function DashboardPage() {
                 />
               </label>
 
-              <button
-                type="button"
-                onClick={handleCustomDownload}
-                disabled={customReport.isFetching}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <Button onClick={handleCustomDownload} loading={customReport.isFetching}>
+                <DownloadSimpleIcon size={18} />
                 Descargar Excel personalizado
-              </button>
+              </Button>
             </div>
           )}
 
           {downloadError && (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="text-sm text-danger">
               {downloadError}
             </p>
           )}
