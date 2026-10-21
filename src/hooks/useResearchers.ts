@@ -5,6 +5,7 @@ import {
   deleteResearcher,
   getResearcherById,
   listResearchers,
+  lookupResearcherByDni,
   updateResearcher,
 } from '@/api/researchers'
 import { getResearcherErrorMessage } from '@/pages/researchers/researcher-error-messages'
@@ -23,6 +24,18 @@ export function useResearcher(id: string | null) {
     queryKey: ['researchers', 'detail', id],
     queryFn: () => getResearcherById(id as string),
     enabled: Boolean(id),
+  })
+}
+
+// Solo consulta cuando el DNI está completo (8 dígitos). Los errores no se reintentan: el formulario cae a modo manual.
+export function useReniecLookup(dni: string, enabled: boolean) {
+  const isComplete = /^\d{8}$/.test(dni)
+  return useQuery({
+    queryKey: ['reniec', dni],
+    queryFn: () => lookupResearcherByDni(dni),
+    enabled: enabled && isComplete,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

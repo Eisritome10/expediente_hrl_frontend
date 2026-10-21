@@ -25,3 +25,14 @@ export function updateResearcher(id: string, payload: UpdateResearcherInput) {
 export function deleteResearcher(id: string) {
   return apiFetch<void>(`/researchers/${id}`, { method: 'DELETE' })
 }
+
+export interface ReniecPerson {
+  dni: string
+  firstName: string
+  lastName: string
+}
+
+// Consulta el DNI en RENIEC (vía el backend) para autocompletar nombres y apellidos.
+export function lookupResearcherByDni(dni: string) {
+  return apiFetch<ReniecPerson>(`/researchers/lookup/${dni}`)
+}

@@ -19,3 +19,22 @@ export function getResearcherErrorMessage(error: unknown): string {
   }
   return 'No se pudo conectar con el servidor. Intenta nuevamente.'
 }
+
+// Mensaje para la consulta de DNI a RENIEC. Salvo el duplicado, todos permiten seguir con el llenado manual.
+export function getReniecLookupMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    switch (error.body?.errorCode) {
+      case 'RESEARCHER_DNI_ALREADY_EXISTS':
+        return 'Ya existe un investigador registrado con ese DNI.'
+      case 'RENIEC_DNI_NOT_FOUND':
+        return 'No se encontró este DNI en RENIEC. Ingresa los nombres y apellidos manualmente.'
+      default:
+        return 'No se pudo consultar RENIEC. Ingresa los nombres y apellidos manualmente.'
+    }
+  }
+  return 'No se pudo consultar RENIEC. Ingresa los nombres y apellidos manualmente.'
+}
+
+export function isDuplicateResearcherError(error: unknown): boolean {
+  return error instanceof ApiError && error.body?.errorCode === 'RESEARCHER_DNI_ALREADY_EXISTS'
+}
