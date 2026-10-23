@@ -15,9 +15,15 @@ import { normalizeAlnum, type ProtocolFormValues } from '@/schemas/protocol.sche
 const CATALOG_LIMIT = 100
 
 function formatNroExpediente(value: string): string {
-  // Remove non-numeric characters
+  // The user may type the slash themselves to use a numero with fewer than 4 digits (e.g. "1/2026")
+  if (value.includes('/')) {
+    const [numeroRaw, ...rest] = value.split('/')
+    const numero = numeroRaw.replace(/\D/g, '').slice(0, 4)
+    const anio = rest.join('').replace(/\D/g, '').slice(0, 4)
+    return `${numero}/${anio}`
+  }
+  // Otherwise auto-insert the slash after 4 digits (the common case)
   const cleaned = value.replace(/\D/g, '')
-  // Format as XXXX/YYYY (4 digits, slash, up to 4 digits)
   if (cleaned.length <= 4) return cleaned
   return `${cleaned.slice(0, 4)}/${cleaned.slice(4, 8)}`
 }
