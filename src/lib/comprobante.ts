@@ -16,5 +16,5 @@ export function comprobanteError(tipo: string, numero: string): string | null {
     : 'La factura debe tener serie y correlativo, p. ej. F001-00001234.'
 }
 
-/** Formato del N° de expediente: hasta 4 dígitos, una barra y hasta 6 dígitos (p. ej. 1234/123456). */
-export const NRO_EXPEDIENTE_PATTERN = /^\d{1,4}\/\d{1,6}$/
+/** Formato del número de expediente que envía el cliente: de 1 a 5 dígitos. El backend arma "<numero>/<año>". */
+export const NUMERO_EXPEDIENTE_PATTERN = /^\d{1,5}$/

@@ -45,7 +45,7 @@ function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput 
   const convenioId = values.esConvenio ? emptyToUndefined(values.convenioId) : undefined
   const exonerado = values.esEnmienda || values.esConvenio
   return {
-    nroExpediente: values.nroExpediente,
+    numeroExpediente: values.numeroExpediente,
     fechaRecepcion: values.fechaRecepcion,
     titulo: values.titulo,
     lugarEjecucion: values.lugarEjecucion,
@@ -103,7 +103,7 @@ export function ProtocolWizardPage() {
 
   const currentStep = STEPS[stepIndex]
   const isLastStep = stepIndex === STEPS.length - 1
-  const nroExpediente = methods.watch('nroExpediente')
+  const numeroExpediente = methods.watch('numeroExpediente')
   const esEnmienda = methods.watch('esEnmienda')
   const protocoloOriginalId = methods.watch('protocoloOriginalId')
   const { data: originalProtocol } = useProtocol(esEnmienda && protocoloOriginalId ? protocoloOriginalId : null)
@@ -192,7 +192,11 @@ export function ProtocolWizardPage() {
             </>
           ) : (
             <>
-              ¿Confirmas registrar el protocolo <strong>{nroExpediente || 'sin número de expediente'}</strong>? Revisa los
+              ¿Confirmas registrar el protocolo{' '}
+              <strong>
+                {numeroExpediente ? `${numeroExpediente}/${new Date().getFullYear()}` : 'sin número de expediente'}
+              </strong>
+              ? Revisa los
               datos del resumen antes de continuar. Una vez registrado no se puede editar.
             </>
           )

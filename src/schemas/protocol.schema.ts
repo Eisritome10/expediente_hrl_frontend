@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { NRO_EXPEDIENTE_PATTERN, comprobanteError } from '@/lib/comprobante'
+import { NUMERO_EXPEDIENTE_PATTERN, comprobanteError } from '@/lib/comprobante'
 import type { Protocol } from '@/types/entities'
 
 /** Monto fijo (S/) de la revisión de historia clínica: no se edita. */
@@ -11,11 +11,11 @@ export function normalizeAlnum(value: string): string {
 
 export const protocolFormSchema = z
   .object({
-    nroExpediente: z
+    numeroExpediente: z
       .string()
       .trim()
       .min(1, 'Ingresa el número de expediente.')
-      .regex(NRO_EXPEDIENTE_PATTERN, 'Usa el formato 1234/123456: solo números, una barra y hasta 4 y 6 dígitos.'),
+      .regex(NUMERO_EXPEDIENTE_PATTERN, 'Usa solo números, de 1 a 5 dígitos.'),
     fechaRecepcion: z.string().min(1, 'Selecciona la fecha de recepción.'),
     titulo: z
       .string()
@@ -147,7 +147,7 @@ export type ProtocolFormValues = z.infer<typeof protocolFormSchema>
 export const protocolStepFields: Record<string, (keyof ProtocolFormValues)[]> = {
   tipo: ['esEnmienda', 'protocoloOriginalId'],
   expediente: [
-    'nroExpediente',
+    'numeroExpediente',
     'fechaRecepcion',
     'titulo',
     'lugarEjecucion',
@@ -171,7 +171,7 @@ export const protocolStepFields: Record<string, (keyof ProtocolFormValues)[]> = 
 }
 
 export const protocolFormDefaultValues: ProtocolFormValues = {
-  nroExpediente: '',
+  numeroExpediente: '',
   fechaRecepcion: new Date().toISOString().slice(0, 10),
   titulo: '',
   lugarEjecucion: 'HOSPITAL REGIONAL DE LORETO',
@@ -212,7 +212,7 @@ export const protocolFormDefaultValues: ProtocolFormValues = {
 export function protocolToAmendmentFormValues(protocol: Protocol): ProtocolFormValues {
   const today = new Date().toISOString().slice(0, 10)
   return {
-    nroExpediente: '',
+    numeroExpediente: '',
     fechaRecepcion: today,
     titulo: protocol.titulo,
     lugarEjecucion: protocol.lugarEjecucion,

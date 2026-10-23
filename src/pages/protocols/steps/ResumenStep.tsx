@@ -99,7 +99,10 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
       </SummarySection>
 
       <SummarySection title="Expediente" onEdit={() => onEditStep(1)}>
-        <SummaryRow label="N° de expediente" value={values.nroExpediente} />
+        <SummaryRow
+          label="N° de expediente"
+          value={values.numeroExpediente ? `${values.numeroExpediente}/${new Date().getFullYear()}` : ''}
+        />
         <SummaryRow label="Fecha de recepción" value={values.fechaRecepcion} />
         <SummaryRow label="Título" value={values.titulo} />
         <SummaryRow label="Diseño del estudio" value={studyDesignLabels} />

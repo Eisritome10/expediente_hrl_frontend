@@ -14,18 +14,8 @@ import { normalizeAlnum, type ProtocolFormValues } from '@/schemas/protocol.sche
 
 const CATALOG_LIMIT = 100
 
-function formatNroExpediente(value: string): string {
-  // The user may type the slash themselves to use a numero with fewer than 4 digits (e.g. "1/2026")
-  if (value.includes('/')) {
-    const [numeroRaw, ...rest] = value.split('/')
-    const numero = numeroRaw.replace(/\D/g, '').slice(0, 4)
-    const anio = rest.join('').replace(/\D/g, '').slice(0, 4)
-    return `${numero}/${anio}`
-  }
-  // Otherwise auto-insert the slash after 4 digits (the common case)
-  const cleaned = value.replace(/\D/g, '')
-  if (cleaned.length <= 4) return cleaned
-  return `${cleaned.slice(0, 4)}/${cleaned.slice(4, 8)}`
+function formatNumeroExpediente(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 5)
 }
 
 export function ExpedienteStep() {
@@ -41,6 +31,7 @@ export function ExpedienteStep() {
   const [openDestinationDialog, setOpenDestinationDialog] = useState(false)
 
   const esInstitucional = watch('esInstitucional')
+  const numeroExpediente = watch('numeroExpediente')
 
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
   const destinations = useDestinationsList({ page: 1, limit: CATALOG_LIMIT })
@@ -83,22 +74,25 @@ export function ExpedienteStep() {
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
           label="N° de expediente"
-          htmlFor="nroExpediente"
-          hint="Formato: 4 dígitos / 4 dígitos (se completa automáticamente)"
-          error={errors.nroExpediente?.message}
+          htmlFor="numeroExpediente"
+          hint={
+            numeroExpediente
+              ? `Se registrará como ${numeroExpediente}/${new Date().getFullYear()}`
+              : 'Solo el número correlativo; el año se agrega automáticamente.'
+          }
+          error={errors.numeroExpediente?.message}
           required
         >
           <Input
-            id="nroExpediente"
+            id="numeroExpediente"
             autoFocus
             inputMode="numeric"
-            maxLength={9}
-            placeholder="1234/2026"
-            error={errors.nroExpediente?.message}
-            {...register('nroExpediente', {
+            maxLength={5}
+            placeholder="542"
+            error={errors.numeroExpediente?.message}
+            {...register('numeroExpediente', {
               onChange: (e) => {
-                const formatted = formatNroExpediente(e.target.value)
-                e.target.value = formatted
+                e.target.value = formatNumeroExpediente(e.target.value)
               },
             })}
           />
