@@ -95,14 +95,17 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email || undefined,
-      phone: values.phone || undefined,
     }
 
     try {
       if (isEditing && researcher) {
-        await updateResearcher.mutateAsync({ id: researcher.id, payload })
+        // En edición, vaciar el teléfono lo borra en el backend (`null`); `undefined` lo dejaría como estaba.
+        await updateResearcher.mutateAsync({
+          id: researcher.id,
+          payload: { ...payload, phone: values.phone || null },
+        })
       } else {
-        await createResearcher.mutateAsync({ ...payload, dni: values.dni })
+        await createResearcher.mutateAsync({ ...payload, phone: values.phone || undefined, dni: values.dni })
       }
       onClose()
     } catch (error) {

@@ -19,7 +19,10 @@ export interface CreateResearcherInput {
   phone?: string
 }
 
-export type UpdateResearcherInput = Partial<Omit<CreateResearcherInput, 'dni'>>
+/** `phone: null` borra el teléfono en el backend; `undefined` lo deja como estaba. */
+export type UpdateResearcherInput = Partial<Omit<CreateResearcherInput, 'dni' | 'phone'>> & {
+  phone?: string | null
+}
 
 export type InstitutionType = 'HOSPITAL' | 'UNIVERSITY' | 'OTHER'
 
