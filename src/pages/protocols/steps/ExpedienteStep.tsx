@@ -15,7 +15,10 @@ import { normalizeAlnum, type ProtocolFormValues } from '@/schemas/protocol.sche
 const CATALOG_LIMIT = 100
 
 function formatNumeroExpediente(value: string): string {
-  return value.replace(/\D/g, '').slice(0, 5)
+  const limpio = value.replace(/[^\d/]/g, '')
+  const [entero = '', ...resto] = limpio.split('/')
+  if (resto.length === 0) return entero.slice(0, 5)
+  return `${entero.slice(0, 5)}/${resto.join('').slice(0, 4)}`
 }
 
 export function ExpedienteStep() {
@@ -31,7 +34,6 @@ export function ExpedienteStep() {
   const [openDestinationDialog, setOpenDestinationDialog] = useState(false)
 
   const esInstitucional = watch('esInstitucional')
-  const numeroExpediente = watch('numeroExpediente')
 
   const institutions = useInstitutionsList({ page: 1, limit: CATALOG_LIMIT })
   const destinations = useDestinationsList({ page: 1, limit: CATALOG_LIMIT })
@@ -75,20 +77,15 @@ export function ExpedienteStep() {
         <FormField
           label="N° de expediente"
           htmlFor="numeroExpediente"
-          hint={
-            numeroExpediente
-              ? `Se registrará como ${numeroExpediente}/${new Date().getFullYear()}`
-              : 'Solo el número correlativo; el año se agrega automáticamente.'
-          }
+          hint='Número y año separados por "/", p. ej. 542/2026.'
           error={errors.numeroExpediente?.message}
           required
         >
           <Input
             id="numeroExpediente"
             autoFocus
-            inputMode="numeric"
-            maxLength={5}
-            placeholder="542"
+            maxLength={10}
+            placeholder="542/2026"
             error={errors.numeroExpediente?.message}
             {...register('numeroExpediente', {
               onChange: (e) => {

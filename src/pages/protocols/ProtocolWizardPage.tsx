@@ -194,7 +194,7 @@ export function ProtocolWizardPage() {
             <>
               ¿Confirmas registrar el protocolo{' '}
               <strong>
-                {numeroExpediente ? `${numeroExpediente}/${new Date().getFullYear()}` : 'sin número de expediente'}
+                {numeroExpediente || 'sin número de expediente'}
               </strong>
               ? Revisa los
               datos del resumen antes de continuar. Una vez registrado no se puede editar.
