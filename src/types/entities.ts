@@ -275,7 +275,7 @@ export interface Protocol {
 }
 
 export interface CreateProtocolInput {
-  /** Expediente completo "<1-5 dígitos>/<año 2020-2029>"; el backend lo guarda tal cual. */
+  /** Expediente completo "<1-5 dígitos>/<año de 4 dígitos que empieza en 20>"; el backend lo guarda tal cual. */
   numeroExpediente: string
   fechaRecepcion: string
   titulo: string

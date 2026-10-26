@@ -15,7 +15,7 @@ export const protocolFormSchema = z
       .string()
       .trim()
       .min(1, 'Ingresa el número de expediente.')
-      .regex(NUMERO_EXPEDIENTE_PATTERN, 'Usa el formato número/año, p. ej. 542/2026 (año entre 2020 y 2029).'),
+      .regex(NUMERO_EXPEDIENTE_PATTERN, 'Usa el formato número/año, p. ej. 542/2026 (año de 4 dígitos que empieza en 20).'),
     fechaRecepcion: z.string().min(1, 'Selecciona la fecha de recepción.'),
     titulo: z
       .string()

@@ -16,5 +16,5 @@ export function comprobanteError(tipo: string, numero: string): string | null {
     : 'La factura debe tener serie y correlativo, p. ej. F001-00001234.'
 }
 
-/** Expediente completo que envía el cliente: "<1-5 dígitos>/<año 2020-2029>", p. ej. 542/2026. */
-export const NUMERO_EXPEDIENTE_PATTERN = /^\d{1,5}\/202\d$/
+/** Expediente completo que envía el cliente: "<1-5 dígitos>/<año de 4 dígitos que empieza en 20>", p. ej. 542/2026. */
+export const NUMERO_EXPEDIENTE_PATTERN = /^\d{1,5}\/20\d\d$/
