@@ -5,7 +5,9 @@ export type UserStatus = 'ACTIVE' | 'INACTIVE'
 export interface SessionUser {
   id: string
   username: string
+  email?: string | null
   role: UserRole
+  personId?: string | null
 }
 
 export interface AuthenticatedSession {
