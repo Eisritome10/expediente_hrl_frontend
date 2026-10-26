@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { WarningCircleIcon } from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/Badge'
+import { FormAlert } from '@/components/ui/FormAlert'
 import { RadioCardGroup, type RadioCardOption } from '@/components/ui/RadioCardGroup'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
@@ -10,8 +12,19 @@ import {
   protocolToAmendmentFormValues,
   type ProtocolFormValues,
 } from '@/schemas/protocol.schema'
+import type { EthicsCertificate } from '@/types/entities'
 
 type TipoRegistro = 'nuevo' | 'enmienda'
+
+const EXPIRED_CERTIFICATE_MESSAGE =
+  'El protocolo original seleccionado no cuenta con una constancia de ética vigente. Venció o no dispone de certificado, por lo que no es posible realizar enmiendas.'
+
+/** Una constancia vencida o inexistente impide registrar enmiendas. */
+function isEthicsCertificateExpired(certificate?: EthicsCertificate | null): boolean {
+  if (!certificate) return true
+  if (certificate.status === 'EXPIRADO') return true
+  return new Date(certificate.fechaExpiracion) < new Date()
+}
 
 const OPTIONS: RadioCardOption<TipoRegistro>[] = [
   {
@@ -38,6 +51,8 @@ export function TipoRegistroStep() {
   const esEnmienda = watch('esEnmienda')
   const protocoloOriginalId = watch('protocoloOriginalId')
   const { data: selectedOriginal } = useProtocol(esEnmienda && protocoloOriginalId ? protocoloOriginalId : null)
+  const selectedCertificate = selectedOriginal?.ethicsCertificate ?? null
+  const selectedCertificateExpired = isEthicsCertificateExpired(selectedCertificate)
 
   const handleChange = (value: TipoRegistro) => {
     if (value === 'nuevo') {
@@ -65,10 +80,30 @@ export function TipoRegistroStep() {
         <div className="flex flex-col gap-3">
           <AmendmentPicker />
           {selectedOriginal && (
-            <p className="text-sm text-text">
-              Protocolo original seleccionado:{' '}
-              <strong className="font-semibold">N° {selectedOriginal.nroExpediente}</strong>
-            </p>
+            <div className="flex flex-col gap-1.5 text-sm text-text">
+              <p>
+                Protocolo original seleccionado:{' '}
+                <strong className="font-semibold">N° {selectedOriginal.nroExpediente}</strong>
+              </p>
+              {selectedCertificate && (
+                <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2.5">
+                  <p>
+                    Codificación del documento:{' '}
+                    <strong className="font-semibold">{selectedCertificate.codigoDocumento}</strong>
+                  </p>
+                  <p>
+                    Código de inscripción:{' '}
+                    <strong className="font-semibold">{selectedCertificate.codigoInscripcion}</strong>
+                  </p>
+                  <p className="flex flex-wrap items-center gap-2 text-text-muted">
+                    Vigencia hasta {selectedCertificate.fechaExpiracion.slice(0, 10)}
+                    <Badge tone={selectedCertificateExpired ? 'danger' : 'success'}>
+                      {selectedCertificateExpired ? 'Constancia vencida' : 'Constancia vigente'}
+                    </Badge>
+                  </p>
+                </div>
+              )}
+            </div>
           )}
           {errors.protocoloOriginalId && (
             <p role="alert" className="text-sm text-red-700">
@@ -100,13 +135,16 @@ function AmendmentPicker() {
   const prefilledIdRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (original && prefilledIdRef.current !== original.id) {
-      prefilledIdRef.current = original.id
-      reset(protocolToAmendmentFormValues(original))
-    }
+    if (!original || prefilledIdRef.current === original.id) return
+    prefilledIdRef.current = original.id
+    // Sin constancia vigente no se precarga la enmienda: el registro quedaría bloqueado.
+    if (isEthicsCertificateExpired(original.ethicsCertificate)) return
+    reset(protocolToAmendmentFormValues(original))
   }, [original, reset])
 
   const results = trimmedTerm ? (data?.data ?? []) : []
+  const certificateError =
+    original && isEthicsCertificateExpired(original.ethicsCertificate) ? EXPIRED_CERTIFICATE_MESSAGE : null
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border-strong bg-surface-muted/40 p-4">
@@ -131,6 +169,8 @@ function AmendmentPicker() {
         aria-label="Buscar protocolo finalizado"
       />
 
+      {certificateError && <FormAlert>{certificateError}</FormAlert>}
+
       {isFetching && <p className="text-sm text-text-muted">Cargando el protocolo original…</p>}
 
       {trimmedTerm && !isFetching && (
@@ -143,18 +183,26 @@ function AmendmentPicker() {
             <p className="text-sm text-text-muted">No se encontraron protocolos finalizados con ese número.</p>
           ) : (
             <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
-              {results.map((protocol) => (
-                <li key={protocol.id}>
-                  <button
-                    type="button"
-                    onClick={() => setPickedId(protocol.id)}
-                    className="flex w-full flex-col gap-0.5 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-muted/60 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none"
-                  >
-                    <span className="text-sm font-semibold text-text">{protocol.nroExpediente}</span>
-                    <span className="line-clamp-1 text-xs text-text-muted">{protocol.titulo}</span>
-                  </button>
-                </li>
-              ))}
+              {results.map((protocol) => {
+                const expired = isEthicsCertificateExpired(protocol.ethicsCertificate)
+                return (
+                  <li key={protocol.id}>
+                    <button
+                      type="button"
+                      onClick={() => setPickedId(protocol.id)}
+                      className="flex w-full flex-col gap-0.5 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-muted/60 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none"
+                    >
+                      <span className="flex w-full flex-wrap items-center justify-between gap-2">
+                        <span className="text-sm font-semibold text-text">{protocol.nroExpediente}</span>
+                        <Badge tone={expired ? 'danger' : 'success'}>
+                          {expired ? 'Constancia vencida / expirada' : 'Constancia vigente'}
+                        </Badge>
+                      </span>
+                      <span className="line-clamp-1 text-xs text-text-muted">{protocol.titulo}</span>
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>

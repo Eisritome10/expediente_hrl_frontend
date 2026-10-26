@@ -230,6 +230,23 @@ export interface ProtocolCorrection {
   createdAt: string
 }
 
+export type CertificateStatus = 'VIGENTE' | 'EXPIRADO' | 'REVOCADO'
+
+/** Constancia de ética emitida al finalizar la revisión del CIEI. */
+export interface EthicsCertificate {
+  id: string
+  protocolId: string
+  correlativo: number
+  anio: number
+  codigoDocumento: string
+  codigoInscripcion: string
+  status: CertificateStatus
+  fechaEmision: string
+  fechaExpiracion: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Protocol {
   id: string
   status: ProtocolStatus
@@ -268,6 +285,7 @@ export interface Protocol {
   tieneConstanciaEtica: boolean
   idConstanciaEtica: string | null
   fechaConstancia: string | null
+  ethicsCertificate?: EthicsCertificate | null
   catalogadoRiesgo: RiskLevel | null
   consentimientoInformado: boolean
   departamentoDirigidoPermiso: string | null
