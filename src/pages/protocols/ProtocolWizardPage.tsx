@@ -44,6 +44,8 @@ function numberOrUndefined(value: number | undefined): number | undefined {
 function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput {
   const convenioId = values.esConvenio ? emptyToUndefined(values.convenioId) : undefined
   const exonerado = values.esEnmienda || values.esConvenio
+  const usaHistoriaClinica = values.usaHistoriaClinica
+  const requiereRevisionHc = usaHistoriaClinica ? values.requiereRevisionHc : false
   return {
     numeroExpediente: values.numeroExpediente,
     fechaRecepcion: values.fechaRecepcion,
@@ -60,16 +62,18 @@ function toCreateProtocolInput(values: ProtocolFormValues): CreateProtocolInput 
     lineaHrlId: values.lineaHrlId,
     lineaMeta2030Id: values.lineaMeta2030Id,
     modalidadId: values.modalidadId,
+    propositoRevision: values.propositoRevision.trim().toUpperCase(),
     convenioId,
     pagoRevision: exonerado ? 0 : numberOrUndefined(values.pagoRevision),
     tipoComprobante: exonerado ? undefined : emptyToUndefined(values.tipoComprobante),
     comprobanteRevision: exonerado ? undefined : emptyToUndefined(values.comprobanteRevision)?.trim().toUpperCase(),
     protocoloOriginalId: emptyToUndefined(values.protocoloOriginalId),
-    requiereRevisionHc: values.requiereRevisionHc,
-    montoHc: values.requiereRevisionHc ? HC_REVIEW_FEE : undefined,
-    tipoComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.tipoComprobanteHc) : undefined,
-    nroComprobanteHc: values.requiereRevisionHc ? emptyToUndefined(values.nroComprobanteHc) : undefined,
-    certificadoBuenasPracticas: values.requiereRevisionHc ? values.certificadoBuenasPracticas : false,
+    usaHistoriaClinica,
+    requiereRevisionHc,
+    montoHc: requiereRevisionHc ? HC_REVIEW_FEE : undefined,
+    tipoComprobanteHc: requiereRevisionHc ? emptyToUndefined(values.tipoComprobanteHc) : undefined,
+    nroComprobanteHc: requiereRevisionHc ? emptyToUndefined(values.nroComprobanteHc) : undefined,
+    certificadoBuenasPracticas: usaHistoriaClinica ? values.certificadoBuenasPracticas : false,
   }
 }
 

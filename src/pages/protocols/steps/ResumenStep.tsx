@@ -123,6 +123,7 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
         <SummaryRow label="Institución" value={institutionLabel} />
         <SummaryRow label="Facultad" value={facultyLabel} />
         <SummaryRow label="Modalidad" value={modalityLabel} />
+        <SummaryRow label="Propósito de revisión" value={values.propositoRevision} />
       </SummarySection>
 
       <SummarySection title="Pago" onEdit={() => onEditStep(3)}>
@@ -140,14 +141,17 @@ export function ResumenStep({ onEditStep }: { onEditStep: (index: number) => voi
       </SummarySection>
 
       <SummarySection title="Historia clínica" onEdit={() => onEditStep(4)}>
-        <SummaryRow label="Requiere revisión de HC" value={values.requiereRevisionHc ? 'Sí' : 'No'} />
-        {values.requiereRevisionHc && (
+        <SummaryRow label="Uso de historias clínicas" value={values.usaHistoriaClinica ? 'Sí' : 'No'} />
+        {values.usaHistoriaClinica && (
+          <SummaryRow label="Requiere revisión de HC de estadística" value={values.requiereRevisionHc ? 'Sí' : 'No'} />
+        )}
+        {values.usaHistoriaClinica && values.requiereRevisionHc && (
           <SummaryRow
-            label="Detalle"
+            label="Comprobante de estadística"
             value={`S/ ${Number(values.montoHc ?? 0).toFixed(2)} (${values.tipoComprobanteHc} ${values.nroComprobanteHc ?? ''})`}
           />
         )}
-        {values.requiereRevisionHc && (
+        {values.usaHistoriaClinica && (
           <SummaryRow label="Certificado de buenas prácticas" value={values.certificadoBuenasPracticas ? 'Sí' : 'No'} />
         )}
       </SummarySection>
