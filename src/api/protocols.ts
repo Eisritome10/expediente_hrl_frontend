@@ -71,3 +71,7 @@ export function getDashboardReport(params: { from?: string; to?: string } = {}) 
 export function downloadMyProtocolEthicsCertificate(id: string) {
   return apiFetchBlob(`/protocols/mine/${id}/ethics-certificate`)
 }
+
+export function downloadProtocolEthicsCertificate(id: string) {
+  return apiFetchBlob(`/protocols/${id}/ethics-certificate`)
+}

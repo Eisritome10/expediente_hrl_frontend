@@ -1,6 +1,15 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, CheckCircleIcon, ClockCounterClockwiseIcon, WarningCircleIcon } from '@phosphor-icons/react'
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  ClockCounterClockwiseIcon,
+  DownloadSimpleIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react'
+import { toast } from 'sonner'
+import { downloadProtocolEthicsCertificate } from '@/api/protocols'
+import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -36,9 +45,35 @@ export function ProtocolDetailPage() {
 
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
   const [correctDialogOpen, setCorrectDialogOpen] = useState(false)
+  const [isDownloadingCertificate, setIsDownloadingCertificate] = useState(false)
 
   const isObserved = protocol?.status === 'CIC_OBSERVED' || protocol?.status === 'CIEI_OBSERVED'
   const isFinalized = protocol?.status === 'FINALIZED'
+
+  const ethicsCertificate = protocol?.ethicsCertificate ?? null
+  const isExpired = ethicsCertificate
+    ? ethicsCertificate.status === 'EXPIRADO' || new Date(ethicsCertificate.fechaExpiracion) < new Date()
+    : false
+
+  async function handleDownloadCertificate() {
+    if (!protocol) return
+    try {
+      setIsDownloadingCertificate(true)
+      const file = await downloadProtocolEthicsCertificate(protocol.id)
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `constancia-etica-${protocol.nroExpediente.replace('/', '-')}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error('No se pudo descargar la constancia. Intenta nuevamente.')
+    } finally {
+      setIsDownloadingCertificate(false)
+    }
+  }
 
   // El CIC queda cerrado cuando el protocolo ya entró en la fase del CIEI o cuando
   // el último dictamen del CIC fue APPROVED (las revisiones llegan ordenadas de más reciente a más antigua).
@@ -87,6 +122,17 @@ export function ProtocolDetailPage() {
               <Button onClick={() => setReviewDialogOpen(true)} disabled={loadingReviews} className="gap-1.5">
                 <CheckCircleIcon size={16} />
                 Registrar dictamen
+              </Button>
+            )}
+            {isFinalized && (
+              <Button
+                variant="secondary"
+                onClick={handleDownloadCertificate}
+                disabled={isDownloadingCertificate}
+                className="gap-1.5"
+              >
+                <DownloadSimpleIcon size={16} />
+                {isDownloadingCertificate ? 'Descargando constancia…' : 'Descargar constancia CIEI'}
               </Button>
             )}
           </div>
@@ -153,12 +199,36 @@ export function ProtocolDetailPage() {
               {protocol.usaHistoriaClinica && (
                 <Row label="Certificado de buenas prácticas" value={protocol.certificadoBuenasPracticas ? 'Sí' : 'No'} />
               )}
-              {/* Datos históricos: ya no se piden al registrar, pero los protocolos antiguos pueden tenerlos. */}
-              {protocol.tieneConstanciaEtica && (
-                <Row
-                  label="Constancia ética"
-                  value={[protocol.idConstanciaEtica, protocol.fechaConstancia?.slice(0, 10)].filter(Boolean).join(', ')}
-                />
+              {ethicsCertificate ? (
+                <>
+                  <Row label="Codificación del documento" value={ethicsCertificate.codigoDocumento} />
+                  <Row label="Código de Inscripción" value={ethicsCertificate.codigoInscripcion} />
+                  <Row
+                    label="Estado de constancia"
+                    value={<Badge tone={isExpired ? 'danger' : 'success'}>{isExpired ? 'Expirada' : 'Vigente'}</Badge>}
+                  />
+                  <Row label="Fecha de emisión" value={ethicsCertificate.fechaEmision.slice(0, 10)} />
+                  <Row label="Vigencia hasta" value={ethicsCertificate.fechaExpiracion.slice(0, 10)} />
+                  <div className="pt-3">
+                    <Button
+                      variant="secondary"
+                      onClick={handleDownloadCertificate}
+                      disabled={isDownloadingCertificate}
+                      className="gap-1.5 px-3 py-1.5 text-xs"
+                    >
+                      <DownloadSimpleIcon size={16} />
+                      {isDownloadingCertificate ? 'Descargando…' : 'Descargar constancia en PDF'}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                // Datos históricos: ya no se piden al registrar, pero los protocolos antiguos pueden tenerlos.
+                protocol.tieneConstanciaEtica && (
+                  <Row
+                    label="Constancia ética"
+                    value={[protocol.idConstanciaEtica, protocol.fechaConstancia?.slice(0, 10)].filter(Boolean).join(', ')}
+                  />
+                )
               )}
               {protocol.consentimientoInformado && <Row label="Consentimiento informado" value="Sí" />}
               {protocol.departamentoDirigidoPermiso && (
