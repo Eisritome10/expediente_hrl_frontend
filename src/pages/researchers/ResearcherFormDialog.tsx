@@ -196,7 +196,7 @@ function ResearcherFormFields({ researcher, onClose }: { researcher: Researcher 
         <Button type="button" variant="secondary" onClick={onClose}>
           Cancelar
         </Button>
-        <Button type="submit" loading={isSubmitting}>
+        <Button type="submit" loading={isSubmitting} disabled={isDuplicate}>
           Guardar
         </Button>
       </div>
