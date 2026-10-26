@@ -10,11 +10,13 @@ import { comprobanteError } from '@/lib/comprobante'
 import { ObservationList } from '@/pages/protocols/ObservationList'
 import { getProtocolErrorMessage } from '@/pages/protocols/protocol-error-messages'
 import { COMMITTEE_NAMES } from '@/pages/protocols/protocol-review-labels'
+import { PROPOSITO_REVISION_OPTIONS } from '@/schemas/protocol.schema'
 import type { Committee, Protocol, ProtocolReviewObservation, UpdateProtocolInput } from '@/types/entities'
 
 interface CorrectFormValues {
   titulo: string
   lugarEjecucion: string
+  propositoRevision: string
   tipoComprobante: string
   comprobanteRevision: string
   certificadoBuenasPracticas: boolean
@@ -73,6 +75,7 @@ function CorrectForm({
     defaultValues: {
       titulo: protocol.titulo,
       lugarEjecucion: protocol.lugarEjecucion,
+      propositoRevision: protocol.propositoRevision ?? '',
       tipoComprobante: protocol.tipoComprobante ?? '',
       comprobanteRevision: protocol.comprobanteRevision ?? '',
       certificadoBuenasPracticas: protocol.certificadoBuenasPracticas,
@@ -112,6 +115,7 @@ function CorrectForm({
         ? {
             titulo: values.titulo.trim(),
             lugarEjecucion: values.lugarEjecucion.trim(),
+            propositoRevision: values.propositoRevision.trim().toUpperCase() || undefined,
             ...(exonerado
               ? {}
               : {
@@ -120,7 +124,7 @@ function CorrectForm({
                   tipoComprobante: values.tipoComprobante.trim() || null,
                   comprobanteRevision: values.comprobanteRevision.trim().toUpperCase() || null,
                 }),
-            ...(protocol.requiereRevisionHc ? { certificadoBuenasPracticas: values.certificadoBuenasPracticas } : {}),
+            ...(protocol.usaHistoriaClinica ? { certificadoBuenasPracticas: values.certificadoBuenasPracticas } : {}),
           }
         : {}),
     }
@@ -165,6 +169,26 @@ function CorrectForm({
             <Input id="lugarEjecucion" {...register('lugarEjecucion', { required: 'Ingresa el lugar de ejecución.' })} />
           </FormField>
 
+          <FormField
+            label="Propósito de revisión"
+            htmlFor="propositoRevision"
+            error={errors.propositoRevision?.message}
+            required
+          >
+            <Input
+              id="propositoRevision"
+              list="proposito-revision-options"
+              placeholder="Ej. TITULO PROFESIONAL DE MEDICO CIRUJANO"
+              error={errors.propositoRevision?.message}
+              {...register('propositoRevision')}
+            />
+            <datalist id="proposito-revision-options">
+              {PROPOSITO_REVISION_OPTIONS.map((opt) => (
+                <option key={opt} value={opt} />
+              ))}
+            </datalist>
+          </FormField>
+
           {!exonerado && (
             <fieldset className="flex flex-col gap-4 rounded-lg border border-border bg-surface-muted/60 p-4">
               <legend className="px-1 text-sm font-semibold text-text">Pago de revisión</legend>
@@ -191,7 +215,7 @@ function CorrectForm({
             </fieldset>
           )}
 
-          {protocol.requiereRevisionHc && (
+          {protocol.usaHistoriaClinica && (
             <Controller
               name="certificadoBuenasPracticas"
               control={control}
@@ -200,7 +224,7 @@ function CorrectForm({
                   checked={field.value}
                   onChange={field.onChange}
                   label="Cuenta con certificado de buenas prácticas"
-                  description="Se pide porque el protocolo requiere revisión de historia clínica."
+                  description="Se solicita porque el protocolo hace uso de historias clínicas."
                 />
               )}
             />

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
-import { FormField } from '@/components/ui/Input'
+import { FormField, Input } from '@/components/ui/Input'
 import { useInstitutionFaculties, useInstitutionsList } from '@/hooks/useInstitutions'
 import { useModalitiesList } from '@/hooks/useModalities'
 import { InstitutionFormDialog } from '@/pages/institutions/InstitutionFormDialog'
 import { ModalityFormDialog } from '@/pages/modalities/ModalityFormDialog'
 import { cn } from '@/lib/cn'
-import type { ProtocolFormValues } from '@/schemas/protocol.schema'
+import { PROPOSITO_REVISION_OPTIONS, type ProtocolFormValues } from '@/schemas/protocol.schema'
 
 const CATALOG_LIMIT = 100
 
@@ -18,6 +18,7 @@ export function InstitucionStep() {
 
   const {
     control,
+    register,
     setValue,
     formState: { errors },
   } = useFormContext<ProtocolFormValues>()
@@ -133,6 +134,26 @@ export function InstitucionStep() {
             />
           )}
         />
+      </FormField>
+
+      <FormField
+        label="Propósito de revisión"
+        htmlFor="propositoRevision"
+        error={errors.propositoRevision?.message}
+        required
+      >
+        <Input
+          id="propositoRevision"
+          list="proposito-revision-options"
+          placeholder="Ej. TITULO PROFESIONAL DE MEDICO CIRUJANO"
+          error={errors.propositoRevision?.message}
+          {...register('propositoRevision')}
+        />
+        <datalist id="proposito-revision-options">
+          {PROPOSITO_REVISION_OPTIONS.map((opt) => (
+            <option key={opt} value={opt} />
+          ))}
+        </datalist>
       </FormField>
 
       {createPortal(

@@ -73,9 +73,9 @@ function ReviewForm({
   const [formError, setFormError] = useState<string | null>(null)
   const isCiei = committee === 'CIEI'
 
-  // El certificado de buenas prácticas se registró al crear el protocolo (solo aplica con revisión de HC).
+  // El certificado de buenas prácticas se registró al crear el protocolo (aplica cuando hace uso de HC).
   // El CIEI lo evalúa, pero su falta no impide finalizar.
-  const certificateMissing = protocol.requiereRevisionHc && !protocol.certificadoBuenasPracticas
+  const certificateMissing = protocol.usaHistoriaClinica && !protocol.certificadoBuenasPracticas
 
   // El CIEI no puede finalizar con una observación pendiente de corregir.
   const canFinalize = isCiei && protocol.status !== 'CIEI_OBSERVED'
