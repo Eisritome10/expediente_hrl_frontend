@@ -5,6 +5,14 @@ import type { Protocol } from '@/types/entities'
 /** Monto fijo (S/) de la revisión de historia clínica: no se edita. */
 export const HC_REVIEW_FEE = 50
 
+/** Opciones sugeridas para el propósito de revisión (el campo es de texto libre). */
+export const PROPOSITO_REVISION_OPTIONS = [
+  'TITULO PROFESIONAL DE MEDICO CIRUJANO',
+  'TITULO DE LICENCIADO EN BROMATOLOGIA Y NUTRICION HUMANA',
+  'TITULO DE LICENCIADA EN ENFERMERIA',
+  'FINES DE INVESTIGACION',
+] as const
+
 export function normalizeAlnum(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '')
 }
@@ -40,6 +48,11 @@ export const protocolFormSchema = z
     destinoIds: z.array(z.string()),
     studyDesignIds: z.array(z.string()).min(1, 'Selecciona al menos un diseño de estudio.'),
     modalidadId: z.string().min(1, 'Selecciona una modalidad.'),
+    propositoRevision: z
+      .string()
+      .trim()
+      .min(1, 'Ingresa el propósito de revisión.')
+      .max(255, 'Máximo 255 caracteres.'),
 
     esEnmienda: z.boolean(),
     protocoloOriginalId: z.string(),
@@ -49,6 +62,7 @@ export const protocolFormSchema = z
     tipoComprobante: z.string(),
     comprobanteRevision: z.string(),
 
+    usaHistoriaClinica: z.boolean(),
     requiereRevisionHc: z.boolean(),
     montoHc: z.number().optional(),
     tipoComprobanteHc: z.string(),
@@ -126,7 +140,7 @@ export const protocolFormSchema = z
       }
     }
 
-    if (values.requiereRevisionHc) {
+    if (values.usaHistoriaClinica && values.requiereRevisionHc) {
       if (values.montoHc === undefined || Number.isNaN(values.montoHc) || values.montoHc <= 0) {
         ctx.addIssue({ code: 'custom', path: ['montoHc'], message: 'Ingresa el monto de revisión de HC.' })
       }
@@ -160,13 +174,14 @@ export const protocolStepFields: Record<string, (keyof ProtocolFormValues)[]> = 
     'institucionId',
     'facultadId',
     'modalidadId',
+    'propositoRevision',
     'esConvenio',
     'convenioId',
     'pagoRevision',
     'tipoComprobante',
     'comprobanteRevision',
   ],
-  historiaClinica: ['requiereRevisionHc', 'montoHc', 'tipoComprobanteHc', 'nroComprobanteHc', 'certificadoBuenasPracticas'],
+  historiaClinica: ['usaHistoriaClinica', 'requiereRevisionHc', 'montoHc', 'tipoComprobanteHc', 'nroComprobanteHc', 'certificadoBuenasPracticas'],
   resumen: [],
 }
 
@@ -189,6 +204,8 @@ export const protocolFormDefaultValues: ProtocolFormValues = {
   studyDesignIds: [],
   modalidadId: '',
 
+  propositoRevision: '',
+
   esEnmienda: false,
   protocoloOriginalId: '',
   esConvenio: false,
@@ -197,6 +214,7 @@ export const protocolFormDefaultValues: ProtocolFormValues = {
   tipoComprobante: '',
   comprobanteRevision: '',
 
+  usaHistoriaClinica: false,
   requiereRevisionHc: false,
   montoHc: HC_REVIEW_FEE,
   tipoComprobanteHc: '',
@@ -230,6 +248,8 @@ export function protocolToAmendmentFormValues(protocol: Protocol): ProtocolFormV
     studyDesignIds: protocol.disenosEstudio.map((studyDesign) => studyDesign.id),
     modalidadId: protocol.modalidad.id,
 
+    propositoRevision: protocol.propositoRevision ?? '',
+
     esEnmienda: true,
     protocoloOriginalId: protocol.id,
     esConvenio: Boolean(protocol.convenio),
@@ -239,6 +259,7 @@ export function protocolToAmendmentFormValues(protocol: Protocol): ProtocolFormV
     tipoComprobante: '',
     comprobanteRevision: '',
 
+    usaHistoriaClinica: protocol.usaHistoriaClinica,
     requiereRevisionHc: protocol.requiereRevisionHc,
     montoHc: HC_REVIEW_FEE,
     tipoComprobanteHc: protocol.tipoComprobanteHc ?? '',

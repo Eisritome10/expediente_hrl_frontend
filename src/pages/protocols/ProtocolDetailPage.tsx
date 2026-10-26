@@ -150,7 +150,7 @@ export function ProtocolDetailPage() {
           <Card className="p-5">
             <h2 className="mb-1 text-sm font-semibold text-text">Evaluación ética</h2>
             <dl className="divide-y divide-border">
-              {protocol.requiereRevisionHc && (
+              {protocol.usaHistoriaClinica && (
                 <Row label="Certificado de buenas prácticas" value={protocol.certificadoBuenasPracticas ? 'Sí' : 'No'} />
               )}
               {/* Datos históricos: ya no se piden al registrar, pero los protocolos antiguos pueden tenerlos. */}
@@ -205,7 +205,7 @@ export function ProtocolDetailPage() {
           <Card className="p-5">
             <h2 className="mb-1 text-sm font-semibold text-text">Pago e historia clínica</h2>
             <dl className="divide-y divide-border">
-              {protocol.propositoRevision && <Row label="Propósito de la revisión (histórico)" value={protocol.propositoRevision} />}
+              {protocol.propositoRevision && <Row label="Propósito de revisión" value={protocol.propositoRevision} />}
               {protocol.fechaRevision && <Row label="Fecha de revisión (histórica)" value={protocol.fechaRevision.slice(0, 10)} />}
               <Row label="Enmienda" value={protocol.esEnmienda ? 'Sí' : 'No'} />
               {protocol.protocoloOriginal && (
@@ -223,10 +223,13 @@ export function ProtocolDetailPage() {
                 value={protocol.convenio ? `Sí: ${protocol.convenio.name}` : protocol.esConvenio ? 'Sí' : 'No'}
               />
               <Row label="Pago de revisión" value={paymentValue} />
-              <Row label="Requiere revisión de HC" value={protocol.requiereRevisionHc ? 'Sí' : 'No'} />
-              {protocol.requiereRevisionHc && (
+              <Row label="Uso de historias clínicas" value={protocol.usaHistoriaClinica ? 'Sí' : 'No'} />
+              {protocol.usaHistoriaClinica && (
+                <Row label="Requiere revisión de HC de estadística" value={protocol.requiereRevisionHc ? 'Sí' : 'No'} />
+              )}
+              {protocol.usaHistoriaClinica && protocol.requiereRevisionHc && (
                 <Row
-                  label="Detalle de HC"
+                  label="Detalle de HC de estadística"
                   value={`S/ ${(protocol.montoHc ?? 0).toFixed(2)} (${protocol.tipoComprobanteHc ?? ''} ${protocol.nroComprobanteHc ?? ''})`}
                 />
               )}

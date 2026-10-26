@@ -260,6 +260,7 @@ export interface Protocol {
   esConvenio: boolean
   convenioId: string | null
   convenio: ProtocolRelatedEntity | null
+  usaHistoriaClinica: boolean
   requiereRevisionHc: boolean
   montoHc: number | null
   tipoComprobanteHc: string | null
@@ -294,11 +295,13 @@ export interface CreateProtocolInput {
   lineaHrlId: string
   lineaMeta2030Id: string
   modalidadId: string
+  propositoRevision: string
   convenioId?: string
   pagoRevision?: number
   tipoComprobante?: string
   comprobanteRevision?: string
   protocoloOriginalId?: string
+  usaHistoriaClinica?: boolean
   requiereRevisionHc?: boolean
   montoHc?: number
   tipoComprobanteHc?: string
