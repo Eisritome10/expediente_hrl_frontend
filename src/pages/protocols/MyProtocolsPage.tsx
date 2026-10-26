@@ -81,7 +81,7 @@ export function MyProtocolsPage() {
         <NoticePanel
           icon={<LinkBreakIcon size={28} />}
           title="Tu cuenta aún no está vinculada a un investigador"
-          body="Comunícate con la oficina de investigación para que vinculen tu cuenta a tu registro de investigador."
+          body="Comunícate con la oficina de investigación para que vinculen tu cuenta a tu registro de investigador (persona)."
         />
       ) : isError ? (
         <div role="alert" className="flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">

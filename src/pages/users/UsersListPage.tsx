@@ -129,7 +129,7 @@ export function UsersListPage() {
                         <IconButton onClick={() => openEditDialog(user)} aria-label={`Editar ${user.username}`}>
                           <PencilSimpleIcon size={16} />
                         </IconButton>
-                        {!user.researcherId && (
+                        {!(user.personId || user.researcherId) && (
                           <IconButton
                             tone="danger"
                             onClick={() => setDeletingUser(user)}

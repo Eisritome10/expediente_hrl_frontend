@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { InfoIcon } from '@phosphor-icons/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog } from '@/components/ui/Dialog'
@@ -124,6 +125,8 @@ function UserCreateFields({ onClose }: { onClose: () => void }) {
 function UserEditFields({ user, onClose }: { user: User; onClose: () => void }) {
   const [formError, setFormError] = useState<string | null>(null)
   const updateUser = useUpdateUser()
+  // Las cuentas vinculadas a una persona/investigador toman su perfil del módulo de Investigadores / Personas.
+  const isProfileLinked = Boolean(user.personId || user.researcherId)
 
   const {
     register,
@@ -143,7 +146,12 @@ function UserEditFields({ user, onClose }: { user: User; onClose: () => void }) 
   const onSubmit = async (values: UserEditFormValues) => {
     setFormError(null)
     try {
-      await updateUser.mutateAsync({ id: user.id, payload: { fullName: values.fullName.trim(), status: values.status } })
+      await updateUser.mutateAsync({
+        id: user.id,
+        payload: isProfileLinked
+          ? { status: values.status }
+          : { fullName: values.fullName.trim(), status: values.status },
+      })
       onClose()
     } catch (error) {
       setFormError(getUserErrorMessage(error))
@@ -152,12 +160,35 @@ function UserEditFields({ user, onClose }: { user: User; onClose: () => void }) 
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {isProfileLinked && (
+        <div className="flex items-start gap-2 rounded-lg bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+          <InfoIcon size={18} className="shrink-0" />
+          <span>
+            Esta cuenta está vinculada a un investigador. El perfil personal, el nombre completo y los datos de contacto
+            se gestionan desde el módulo de Investigadores / Personas.
+          </span>
+        </div>
+      )}
+
       <FormField label="Usuario" htmlFor="editUsername">
         <Input id="editUsername" readOnly disabled value={user.username} />
       </FormField>
 
-      <FormField label="Nombre completo" htmlFor="fullName" error={errors.fullName?.message} required>
-        <Input id="fullName" autoFocus error={errors.fullName?.message} {...register('fullName')} />
+      <FormField
+        label="Nombre completo"
+        htmlFor="fullName"
+        hint={isProfileLinked ? 'Se obtiene del registro de la persona vinculada.' : undefined}
+        error={errors.fullName?.message}
+        required
+      >
+        <Input
+          id="fullName"
+          autoFocus={!isProfileLinked}
+          readOnly={isProfileLinked}
+          className={isProfileLinked ? 'bg-wash' : undefined}
+          error={errors.fullName?.message}
+          {...register('fullName')}
+        />
       </FormField>
 
       <FormField label="Rol" htmlFor="editRole">

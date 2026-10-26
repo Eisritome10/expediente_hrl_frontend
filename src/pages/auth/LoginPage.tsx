@@ -61,7 +61,7 @@ export function LoginPage() {
         <FormField
           label="Usuario, DNI o correo"
           htmlFor="identifier"
-          hint="Los investigadores ingresan con su DNI."
+          hint="Puedes ingresar con tu DNI, nombre de usuario o correo electrónico."
           error={errors.identifier?.message}
           required
         >

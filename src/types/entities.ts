@@ -120,6 +120,8 @@ export interface User {
   username: string
   fullName: string
   email: string | null
+  personId?: string | null
+  /** @deprecated Se mantiene por compatibilidad; usar `personId`. */
   researcherId: string | null
   role: UserRole
   status: UserStatus
@@ -130,6 +132,7 @@ export interface User {
 export interface CreateUserInput {
   username: string
   fullName: string
+  email?: string
   password: string
   role?: UserRole
   status?: UserStatus
