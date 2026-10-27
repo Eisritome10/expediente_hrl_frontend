@@ -97,15 +97,17 @@ export function DestinationsListPage() {
           <Table>
             <TableHead>
               <TableTh>Descripción</TableTh>
+              <TableTh>Jefe de departamento</TableTh>
               <TableTh className="text-right">Acciones</TableTh>
             </TableHead>
             <TableBody>
               {isPending ? (
-                <TableSkeletonRows rows={PAGE_SIZE} columns={2} />
+                <TableSkeletonRows rows={PAGE_SIZE} columns={3} />
               ) : visibleDestinations.length > 0 ? (
                 visibleDestinations.map((destination) => (
                   <TableRow key={destination.id}>
                     <TableTd>{destination.description}</TableTd>
+                    <TableTd>{destination.departmentHead || '—'}</TableTd>
                     <TableTd>
                       <div className="flex justify-end gap-1.5">
                         <IconButton onClick={() => openEditDialog(destination)} aria-label={`Editar ${destination.description}`}>
@@ -123,10 +125,10 @@ export function DestinationsListPage() {
                   </TableRow>
                 ))
               ) : isSearching ? (
-                <TableEmptyState colSpan={2} message="No se encontraron destinos para esa búsqueda." />
+                <TableEmptyState colSpan={3} message="No se encontraron destinos para esa búsqueda." />
               ) : (
                 <TableEmptyState
-                  colSpan={2}
+                  colSpan={3}
                   message="Aún no hay destinos registrados."
                   action={
                     <Button variant="secondary" onClick={openCreateDialog}>

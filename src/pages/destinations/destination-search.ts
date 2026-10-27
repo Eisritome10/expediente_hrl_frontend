@@ -10,7 +10,8 @@ function normalize(value: string) {
 
 export function matchesDestinationSearch(destination: Destination, term: string): boolean {
   const query = normalize(term)
-  if (!query) return true
-
-  return normalize(destination.description).includes(query)
+  return (
+    normalize(destination.description).includes(query) ||
+    Boolean(destination.departmentHead && normalize(destination.departmentHead).includes(query))
+  )
 }

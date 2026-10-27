@@ -60,12 +60,14 @@ export interface CreateInstitutionFacultyInput {
 export interface Destination {
   id: string
   description: string
+  departmentHead?: string | null
   createdAt: string
   updatedAt: string
 }
 
 export interface CreateDestinationInput {
   description: string
+  departmentHead?: string | null
 }
 
 export type UpdateDestinationInput = Partial<CreateDestinationInput>

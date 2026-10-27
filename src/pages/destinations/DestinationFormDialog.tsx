@@ -42,6 +42,7 @@ function DestinationFormFields({ destination, onClose }: { destination: Destinat
     reValidateMode: 'onChange',
     defaultValues: {
       description: destination?.description ?? '',
+      departmentHead: destination?.departmentHead ?? '',
     },
   })
 
@@ -68,6 +69,15 @@ function DestinationFormFields({ destination, onClose }: { destination: Destinat
           placeholder="Comité de Ética"
           error={errors.description?.message}
           {...register('description')}
+        />
+      </FormField>
+
+      <FormField label="Jefe de departamento" htmlFor="departmentHead" error={errors.departmentHead?.message}>
+        <Input
+          id="departmentHead"
+          placeholder="Dr. Juan Pérez"
+          error={errors.departmentHead?.message}
+          {...register('departmentHead')}
         />
       </FormField>
 

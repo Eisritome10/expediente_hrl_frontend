@@ -5,6 +5,7 @@ export const destinationFormSchema = z.object({
     .string()
     .min(1, 'Ingresa la descripción del destino.')
     .max(150, 'Máximo 150 caracteres.'),
+  departmentHead: z.string().max(150, 'Máximo 150 caracteres.').optional().or(z.literal('')),
 })
 
 export type DestinationFormValues = z.infer<typeof destinationFormSchema>
